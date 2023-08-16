@@ -4,10 +4,10 @@ const
 SPRITE_SIZE = 48,
 ANIM_RATE = 4,
 IMAGES_SRC = 'images/1 Characters/',
-DRAWN_SIZE = 100,
+DRAWN_SIZE = 100 * GLOBAS_SCALE,
 DEGREES2RADIANS = Math.PI/180,
-HAND_SIZE = 11.5,
-GRAVITY = 10
+HAND_SIZE = 11.5 * GLOBAS_SCALE,
+GRAVITY = 10 * GLOBAS_SCALE
 ;
 // 16, 23
 const States = {
@@ -16,10 +16,26 @@ const States = {
     walk: 'walk',
     jump: 'jump'
 },
+AnimFramesPatterns = {
+    default: {
+        min: 0, max: 4
+    },
+    jump: {
+        min: 0, max: 1
+    },
+    fall: {
+        min: 2, max: 3
+    }
+},
 Directions = {
     right: 1,
     left: -1
-}
+},
+AI_BOX = {
+    width: DRAWN_SIZE*5,
+    height: DRAWN_SIZE*2
+},
+AI_MIN_DIST = DRAWN_SIZE*2;
 class Entity{
     /**
      * 
@@ -30,7 +46,7 @@ class Entity{
      */
     constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2){
         this.weight = 1;
-        this.jumpVelocity = 150;
+        this.jumpVelocity = DRAWN_SIZE * 2;
         this.jumpDuration = {cur: 0, max: 12};
         this.maxHealth = 100;
         this.health = this.maxHealth;
@@ -62,9 +78,10 @@ class Entity{
         this.state = States.idle;
         this.curFrame = 0;
         this.counter = {cur: 0, fq: 5};
-        this.speed = 4;
+        this.speed = 10;
         this.impulse = 0;
         this.isMove = false;
+        this.animFramesPattern = AnimFramesPatterns.default;
         this.handleAngle = 0;
         this.hand = new Image();
         this.hand.src =  `${IMAGES_SRC}${charName}/Hand.png`;
@@ -74,24 +91,36 @@ class Entity{
         collisionEntities.push(this);
         this.isJump = false;
         this.isOnFloor = true;
+        this.cooldownShot = {cur: 0, max: 150}
+    }
+
+    _setAnimFramesPattern(pattern = "default"){
+        this.animFramesPattern = AnimFramesPatterns[pattern] || AnimFramesPatterns.default;
+        if(this.curFrame < this.animFramesPattern.min || this.curFrame >= this.animFramesPattern.max) this.curFrame = this.animFramesPattern.min;
     }
 
     draw(){
+        this._setAnimFramesPattern();
         this.state = States.idle;
-        if(this.isMove) this.state = States.walk;
-        if(this.isJump) this.state = States.jump;
+        if(this.isMove) {this.state = States.walk;}
+        if(this.isJump) {
+            this.state = States.jump; this._setAnimFramesPattern('jump');
+        }
+        if(!this.isJump && !this.isOnFloor) {
+            this.state = States.jump; this._setAnimFramesPattern('fall');
+        }
         
         let translatePos = {};
         if(this.dir === Directions.right){
         translatePos = {
-            x: this.pos.x + 18*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2,
-            y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE
+            x: this.pos.x + 18*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2 - cameraPos.x,
+            y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y
         };
     }
         else{
             translatePos = {
-                x: this.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE,
-                y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE,
+                x: this.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE- cameraPos.x,
+                y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y,
             };
             
         }
@@ -101,7 +130,7 @@ class Entity{
         // };
         c.translate(translatePos.x ,translatePos.y);
         c.rotate(this.handleAngle);
-        c.fillStyle ='red';
+        // c.fillStyle ='red';
         // c.fillRect(-5, 0, 10, 70);
         if(this.dir === Directions.right){
             c.drawImage(this.gun, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 + 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
@@ -115,15 +144,15 @@ class Entity{
         c.rotate(-this.handleAngle)
         c.translate(-translatePos.x, -translatePos.y);
         c.fillStyle= 'brown';
-        c.fillRect(this.pos.x+DRAWN_SIZE/2, this.pos.y, DRAWN_SIZE/2, OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         c.fillStyle= 'red';
-        c.fillRect(this.pos.x+DRAWN_SIZE/2, this.pos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         
         if(this.dir === Directions.right){
-            c.drawImage(this.images[this.state], (this.isJump? 0: this.curFrame) * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, this.pos.x + DRAWN_SIZE/2, this.pos.y, DRAWN_SIZE, DRAWN_SIZE);
+            c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
         else{
-            c.drawImage(this.imagesLeft[this.state], (3 - this.curFrame) * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, this.pos.x + DRAWN_SIZE*0/2, this.pos.y, DRAWN_SIZE, DRAWN_SIZE);
+            c.drawImage(this.imagesLeft[this.state], (3 - this.curFrame) * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
     }
 
@@ -134,6 +163,10 @@ class Entity{
     update(){
         if(this.isJump){
             this._doingJump();
+        }
+        if(this.team === 2 && !GAME_STATE.end){
+            this._updateAi();
+            this._updateEnemyHand();
         }
         this.gravity();
         this.draw();
@@ -154,9 +187,9 @@ class Entity{
      * @param {number} x speed factor; множитель скорости
      */
     move(x = 0){
-        this.pos.x+=x*this.speed;
-        if(entitiesCollision(this)){
-            this.pos.x-=x*this.speed;
+        this.pos.x+=x*this.speed*GLOBAS_SCALE;
+        if(entitiesCollision(this) || fullCollWithMap(this)){
+            this.pos.x-=x*this.speed*GLOBAS_SCALE;
         }
         this.isMove = true;
     }
@@ -164,7 +197,7 @@ class Entity{
     /**
      * Returns the entiti's current box
      * Вовращает текущий бокс entity
-     * @returns {{x: number, y: number, x1: number, y1: number}} x - left, y - top, x1 - right, y1 - bottom of Box
+     * @returns {{x: number, y: number, x2: number, y2: number}} x - left, y - top, x2 - right, y2 - bottom of Box
      */
     getBox(){
         let thisBox = {x: 0, y: 0, x2: 0, y2: 0};
@@ -188,16 +221,18 @@ class Entity{
      * Обрабатывает гравитацию
      */
     gravity(){
-        if(this.pos.y < 200){
-            this.isOnFloor = false;
-            if(!this.isJump)
+        let bCres = bottomCollisionWithMap(this);
+        this.isOnFloor = bCres.res;
+        if(!this.isOnFloor){
+            if(!this.isJump){
                 this.pos.y+=GRAVITY*this.weight;
-            if(this.pos.y > 200){
-                this.pos.y = 200;
+                bCres = bottomCollisionWithMap(this);
+                if(entitiesCollision(this) || bCres.res){
+                    this.isOnFloor = true;
+                    if(!bCres.res) this.pos.y-=GRAVITY*this.weight;
+                    else this.pos.y = bCres.y - DRAWN_SIZE; 
+                }
             }
-        }
-        else{
-            this.isOnFloor=true;
         }
     }
 
@@ -206,6 +241,10 @@ class Entity{
         this.jumpDuration.cur++;
         if(this.jumpDuration.cur >= this.jumpDuration.max){
             this.isJump = false;
+        }
+        else if(fullCollWithMap(this)){
+            this.isJump = false;
+            // this.pos.y += this.jumpVelocity / this.jumpDuration.max;
         }
     }
 
@@ -218,6 +257,79 @@ class Entity{
             // this.pos.y -= 100;
             this.isJump = true;
             this.jumpDuration.cur = 0;
+        }
+    }
+
+    /**
+     * set dir
+     * меняет направление
+     * @param {'right' | 'left'} newDir right | left
+     */
+    setDirection(newDir){
+        this.dir = Directions[newDir] || this.dir;
+    }
+
+    /**
+     * 
+     * @param {'right' | 'left'} checkDir dir направление
+     * @returns {Boolean}
+     */
+    compateDirection(checkDir){
+        return this.dir === Directions[checkDir];
+    }
+
+    _updateEnemyHand(){
+        let angle = Math.atan(
+            (this.pos.y - p.pos.y)/(this.pos.x - p.pos.x)
+        );
+        this.handleAngle = angle - Math.PI/2;
+        if(this.compateDirection('left')) this.handleAngle += Math.PI;
+        if(this.cooldownShot.cur === 0){
+            this._shot();
+            this.cooldownShot.cur = this.cooldownShot.max;
+        }
+        else{
+            this.cooldownShot.cur--;
+        }
+    }
+
+    _shot(){
+        let randomShift = (Math.random()-0.5)*2;
+        if(Math.random() > 0.7) randomShift =  0;
+        if(this.compateDirection('right'))
+            bullets.push(new Bullet('3', {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20));
+        else
+            bullets.push(new Bullet('3', {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20));
+    }
+
+    _updateAi(){
+        c.fillStyle='blue';
+        let box = this.getBox();
+        let AI_area = {
+            x: box.x + DRAWN_SIZE-AI_BOX.width,
+            x2: box.x + DRAWN_SIZE,
+            y: (box.y+box.y2)/2 - AI_BOX.height/2,
+            y2: (box.y+box.y2)/2 - AI_BOX.height/2 + AI_BOX.height,
+        }
+        if(this.compateDirection('right')){
+            AI_area = {
+                x: box.x - DRAWN_SIZE*0.6,
+                x2: box.x - DRAWN_SIZE*0.6 + AI_BOX.width,
+                y: (box.y+box.y2)/2 - AI_BOX.height/2,
+                y2: (box.y+box.y2)/2 - AI_BOX.height/2 + AI_BOX.height,
+            }
+        }
+        // c.fillRect(AI_area.x, AI_area.y, AI_area.x2 - AI_area.x, AI_area.y2 - AI_area.y)
+        let resAI = entitiesInAreaAI(AI_area);
+        if(resAI.res){
+            this.setDirection(resAI.dir);
+            if(resAI.dist >= AI_MIN_DIST)
+                this.move(this.dir * 0.8);
+            else 
+                this.isMove = false;
+        }
+        else{
+            this.isMove = false;
         }
     }
 }

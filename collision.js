@@ -23,25 +23,28 @@ function pointCollision(bullet){
          * @param {number} i 
          */
         (colEntity, i)=>{
-            c.beginPath();
-            if(colEntity.dir === Directions.right){
-                c.moveTo(colEntity.pos.x + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-                c.lineTo(colEntity.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-                c.lineTo(colEntity.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE);
-                c.lineTo(colEntity.pos.x+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE);
-                c.lineTo(colEntity.pos.x+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-            }
-            else{
-                c.moveTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-                c.lineTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-                c.lineTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE);
-                c.lineTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE);
-                c.lineTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-            }
-            // c.stroke();
-            c.closePath();
-            if(c.isPointInPath(point.x, point.y) && colEntity.team !== bullet.team){
-                console.log('попал')
+            // c.beginPath();
+            // if(colEntity.dir === Directions.right){
+            //     c.moveTo(colEntity.pos.x + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
+            //     c.lineTo(colEntity.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
+            //     c.lineTo(colEntity.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE);
+            //     c.lineTo(colEntity.pos.x+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE);
+            //     c.lineTo(colEntity.pos.x+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
+            // }
+            // else{
+            //     c.moveTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
+            //     c.lineTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
+            //     c.lineTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE);
+            //     c.lineTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE);
+            //     c.lineTo(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
+            // }
+            // // c.stroke();
+            // c.closePath();
+            
+            let eBox = colEntity.getBox();
+            let collisionY = isInInterval(eBox.y, point.y, eBox.y2);
+            let collisionX = isInInterval(eBox.x, point.x, eBox.x2);
+            if(collisionX && collisionY && colEntity.team !== bullet.team){
                 colEntity.health -= 20;
                 if(colEntity.health <= 0){
                     collisionEntities.splice(i, 1);
@@ -49,6 +52,16 @@ function pointCollision(bullet){
                 res = true;
             }
     })
+    if(!res){
+        COLLISION_BLOCKS.forEach(tile=>{
+            //block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - MAP_DRAWN_WIDTH/3
+            let collisionX = isInInterval(tile.x*TILE_SIZE, point.x, (tile.x + 1)*TILE_SIZE);
+            let collisionY = isInInterval(tile.y*TILE_SIZE, point.y, (tile.y + 1)*TILE_SIZE);
+            if(collisionX && collisionY){
+                res = true;
+            }
+        })
+    }
     return res;
 
 }
@@ -68,28 +81,11 @@ function isInInterval(a, val, b){
 /**
  * 
  * @param {Entity} ent 
+ * @returns {Boolean}
  */
 function entitiesCollision(ent){
     let res = false;
     let entBox = ent.getBox();
-    // c.beginPath();
-    // if(ent.dir === Directions.right){
-    //     c.moveTo(ent.pos.x + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-    //     c.lineTo(ent.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-    //     c.lineTo(ent.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y+ DRAWN_SIZE);
-    //     c.lineTo(ent.pos.x+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y+ DRAWN_SIZE);
-    //     c.lineTo(ent.pos.x+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-    // }
-    // else{
-    //     c.moveTo(ent.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-    //     c.lineTo(ent.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-    //     c.lineTo(ent.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y+ DRAWN_SIZE);
-    //     c.lineTo(ent.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y+ DRAWN_SIZE);
-    //     c.lineTo(ent.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, ent.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE);
-    // }
-    // // c.stroke();
-    // c.closePath();
-    //93 236
     collisionEntities.filter(e=>(e.pos.x !== ent.pos.x || e.pos.y !== ent.pos.y)).forEach(
         /**
          * 
@@ -103,32 +99,67 @@ function entitiesCollision(ent){
                 if(collisionX && collisionY){
                     res = true;
                 }
+        }
+    )
+    return res;
+}
 
-            // if(colEntity.dir === Directions.right){
-            //     if(
-            //     c.isPointInPath(colEntity.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE) ||
-            //     c.isPointInPath(colEntity.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE) ||
-            //     c.isPointInPath(colEntity.pos.x+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE) ||
-            //     c.isPointInPath(colEntity.pos.x+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE)
-            //     ){
-            //         console.log('Collision 1')
-            //         return true;
-            //     }
-            // }
-            // else{
-            //     c.fillStyle = 'red';
-            //     c.fillRect(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE, 10, 10);
-            //     if(
-            //     c.isPointInPath(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE) ||
-            //     c.isPointInPath(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE) ||
-            //     c.isPointInPath(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y+ DRAWN_SIZE) ||
-            //     c.isPointInPath(colEntity.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE+ OFFSET.left*DRAWN_SIZE/SPRITE_SIZE, colEntity.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE)
-            //     )
-            //     {
-            //         console.log('Colliison 2')
-            //         return true;
-            //     }
-            // }
+/**
+ * 
+ * @param {{x: number, y: number, x2: number, y2: number}} area 
+ * @returns {{res: Boolean, dir: 'right' | 'left', dist: number}}
+ */
+function entitiesInAreaAI(area){
+    let res = undefined;
+    let eBox = p.getBox();
+    let collisionY = isInInterval(area.y, eBox.y, area.y2) || isInInterval(area.y, eBox.y2, area.y2);
+    let collisionX = isInInterval(area.x, eBox.x, area.x2) || isInInterval(area.x, eBox.x2, area.x2);
+    if(collisionX && collisionY){
+        res = true;
+    }
+    return {
+        res: res,
+        dir: p.pos.x > ent.pos.x? 'right' : 'left',
+        dist: Math.abs(p.pos.x - ent.pos.x)
+    };
+}
+
+/**
+ * Проверяет колизию ног с картой
+ * @param {Entity} ent 
+ * @returns {{res: Boolean, y: number}}
+ */
+function bottomCollisionWithMap(ent){
+    let res = {res: false, y: 0};
+    let box = ent.getBox();
+    COLLISION_BLOCKS.forEach(tile=>{
+        //block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - MAP_DRAWN_WIDTH/3
+        let collisionX = isInInterval(tile.x*TILE_SIZE, box.x, (tile.x + 1)*TILE_SIZE) || isInInterval(tile.x*TILE_SIZE, box.x2, (tile.x + 1)*TILE_SIZE);
+        let collisionY = isInInterval(tile.y*TILE_SIZE, box.y2, (tile.y + 1)*TILE_SIZE);
+        if(collisionX && collisionY){
+            res.res = true;
+            res.y = tile.y * TILE_SIZE;
+        }
+
+    })
+    return res;
+}
+
+/**
+ * Проверяет колизию ног с картой
+ * @param {Entity} ent 
+ * @returns {Boolean}
+ */
+function fullCollWithMap(ent){
+    let box = ent.getBox();
+    let res = false;
+    COLLISION_BLOCKS.forEach(tile=>{
+        //block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - MAP_DRAWN_WIDTH/3
+        let collisionX = isInInterval(tile.x*TILE_SIZE, box.x, (tile.x + 1)*TILE_SIZE) || isInInterval(tile.x*TILE_SIZE, box.x2, (tile.x + 1)*TILE_SIZE);
+        let collisionY = isInInterval(tile.y*TILE_SIZE, box.y, (tile.y + 1)*TILE_SIZE) || isInInterval(tile.y*TILE_SIZE, box.y2 - DRAWN_SIZE*0.1, (tile.y + 1)*TILE_SIZE);
+        if(collisionX && collisionY){
+            res = true;
+        }
     })
     return res;
 }
