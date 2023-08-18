@@ -13,11 +13,12 @@ crosshair.src = `images/Crosshair.png`;
 const mouse = {x: 0, y: 0};
 
 function animate(){
-    requestAnimationFrame(animate);
     c.fillStyle='gray';
     c.fillRect(0, 0, canvas.width, canvas.height);
     updateCameraPos();
     c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
+    // c.fillStyle = 'green';
+    // c.fillRect(canvas.width*0.35, canvas.height*0.3, canvas.width*0.3, canvas.height*0.5)
     updatePlayerDir();
     updateBullets();
     collisionEntities.forEach(e=>e.update())
@@ -28,17 +29,26 @@ function animate(){
     //     c.fillRect(block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - cameraPos.y, 1*TILE_SIZE, 1*TILE_SIZE);
     // })
     // entitiesCollision(p);
+    requestAnimationFrame(animate);
 }
 
-animate();
+ENEMY_SPAWN_BLOCKS.forEach(block=>{
+    new Entity('Biker', {x: block.x*TILE_SIZE, y: block.y*TILE_SIZE-DRAWN_SIZE}, '1')
+})
 
 function updateCameraPos(){
-    if(p.pos.x > canvas.width/2){
-        cameraPos.x = p.pos.x - canvas.width/2;
+    let pBox = p.getBox();
+    if(pBox.x2 - cameraPos.x > canvas.width*0.65){
+        cameraPos.x = pBox.x2 - canvas.width*0.65;
     }
-    if(p.pos.y > canvas.height / 2){
-        cameraPos.y = p.pos.y - canvas.height / 2;
+    if(pBox.x - cameraPos.x < canvas.width*0.35){
+        cameraPos.x = pBox.x - canvas.width*0.35;
     }
+    if(pBox.y - cameraPos.y < canvas.height * 0.3){
+        cameraPos.y = pBox.y - canvas.height * 0.3;
+    }
+    if(pBox.y2 - cameraPos.y > canvas.height * 0.8)
+        cameraPos.y = pBox.y2 - canvas.height * 0.8;
 }
 
 function drawCrosshair(size = 50 * GLOBAS_SCALE){
@@ -49,7 +59,6 @@ function setMouse(event){
     event =event || window.event;
     mouse.x = event.clientX;
     mouse.y = event.clientY;
-
 }
 
 window.onmousemove = setMouse;

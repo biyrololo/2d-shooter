@@ -4,9 +4,8 @@ const
 SPRITE_SIZE = 48,
 ANIM_RATE = 4,
 IMAGES_SRC = 'images/1 Characters/',
-DRAWN_SIZE = 100 * GLOBAS_SCALE,
 DEGREES2RADIANS = Math.PI/180,
-HAND_SIZE = 11.5 * GLOBAS_SCALE,
+HAND_SIZE = 11.5 * GLOBAS_SCALE * 1.5,
 GRAVITY = 10 * GLOBAS_SCALE
 ;
 // 16, 23
@@ -39,7 +38,7 @@ AI_MIN_DIST = DRAWN_SIZE*2;
 class Entity{
     /**
      * 
-     * @param {String} charName character name; имя entity
+     * @param {'Biker' | 'Cyborg' | 'Punk'} charName character name; имя entity
      * @param {{x: number, y: number}} startPos start pos; стартовая позиция
      * @param {String} [gun='1'] gun name; название оружия
      * @param {number} [team=2] team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
@@ -55,6 +54,9 @@ class Entity{
         this.gunLeft = new Image();
         this.gunLeft.src = `images/2 Guns/${gun}_1Left.png`;
         this.dir = Directions.right;
+        if(team === 2){
+            this.dir = p.pos.x > startPos.x? Directions.right : Directions.left;
+        }
         this.charName = charName;
         this.images = {};
         this.images.idle = new Image();
@@ -88,10 +90,11 @@ class Entity{
         this.handRight = new Image();
         this.handRight.src =  `${IMAGES_SRC}${charName}/HandRight.png`;
         this.team = team;
-        collisionEntities.push(this);
         this.isJump = false;
         this.isOnFloor = true;
-        this.cooldownShot = {cur: 0, max: 150}
+        this.cooldownShot = {cur: 0, max: 150};
+        this.attacked = {state: false, timeout: 300};
+        collisionEntities.push(this);
     }
 
     _setAnimFramesPattern(pattern = "default"){
@@ -166,11 +169,11 @@ class Entity{
         }
         if(this.team === 2 && !GAME_STATE.end){
             this._updateAi();
-            this._updateEnemyHand();
         }
         this.gravity();
         this.draw();
         this.updateAnim();
+        dieBlocksCollision(this);
     }
 
     updateAnim(){
@@ -223,17 +226,16 @@ class Entity{
     gravity(){
         let bCres = bottomCollisionWithMap(this);
         this.isOnFloor = bCres.res;
-        if(!this.isOnFloor){
-            if(!this.isJump){
-                this.pos.y+=GRAVITY*this.weight;
-                bCres = bottomCollisionWithMap(this);
-                if(entitiesCollision(this) || bCres.res){
-                    this.isOnFloor = true;
-                    if(!bCres.res) this.pos.y-=GRAVITY*this.weight;
-                    else this.pos.y = bCres.y - DRAWN_SIZE; 
-                }
+        if(!this.isJump){
+            this.pos.y+=GRAVITY*this.weight;
+            bCres = bottomCollisionWithMap(this);
+            if(entitiesCollision(this) || bCres.res){
+                this.isOnFloor = true;
+                if(!bCres.res) this.pos.y-=GRAVITY*this.weight;
+                else this.pos.y = bCres.y - DRAWN_SIZE; 
             }
         }
+        
     }
 
     _doingJump(){
@@ -319,9 +321,14 @@ class Entity{
                 y2: (box.y+box.y2)/2 - AI_BOX.height/2 + AI_BOX.height,
             }
         }
-        // c.fillRect(AI_area.x, AI_area.y, AI_area.x2 - AI_area.x, AI_area.y2 - AI_area.y)
-        let resAI = entitiesInAreaAI(AI_area);
+        if(this.attacked.state){
+            AI_area.x -= DRAWN_SIZE*2;
+            AI_area.x2 += DRAWN_SIZE*2;
+        }
+        // c.fillRect(AI_area.x - cameraPos.x, AI_area.y - cameraPos.y, AI_area.x2 - AI_area.x, AI_area.y2 - AI_area.y)
+        let resAI = entitiesInAreaAI(AI_area, this);
         if(resAI.res){
+            this._updateEnemyHand();
             this.setDirection(resAI.dir);
             if(resAI.dist >= AI_MIN_DIST)
                 this.move(this.dir * 0.8);

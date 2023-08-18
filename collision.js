@@ -46,6 +46,7 @@ function pointCollision(bullet){
             let collisionX = isInInterval(eBox.x, point.x, eBox.x2);
             if(collisionX && collisionY && colEntity.team !== bullet.team){
                 colEntity.health -= 20;
+                colEntity.attacked.state = true;
                 if(colEntity.health <= 0){
                     collisionEntities.splice(i, 1);
                 }
@@ -107,9 +108,10 @@ function entitiesCollision(ent){
 /**
  * 
  * @param {{x: number, y: number, x2: number, y2: number}} area 
+ * @param {Entity} ent
  * @returns {{res: Boolean, dir: 'right' | 'left', dist: number}}
  */
-function entitiesInAreaAI(area){
+function entitiesInAreaAI(area, ent){
     let res = undefined;
     let eBox = p.getBox();
     let collisionY = isInInterval(area.y, eBox.y, area.y2) || isInInterval(area.y, eBox.y2, area.y2);
@@ -161,5 +163,28 @@ function fullCollWithMap(ent){
             res = true;
         }
     })
+    return res;
+}
+
+/**
+ * Проверяет колизию ног с картой
+ * @param {Entity} ent 
+ * @returns {Boolean}
+ */
+function dieBlocksCollision(ent){
+    let box = ent.getBox();
+    let res = false;
+    DIE_ENTITY_BLOCKS.forEach(tile=>{
+        //block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - MAP_DRAWN_WIDTH/3
+        let collisionX = isInInterval(tile.x*TILE_SIZE, box.x, (tile.x + 1)*TILE_SIZE) || isInInterval(tile.x*TILE_SIZE, box.x2, (tile.x + 1)*TILE_SIZE);
+        let collisionY = isInInterval(tile.y*TILE_SIZE, box.y, (tile.y + 1)*TILE_SIZE) || isInInterval(tile.y*TILE_SIZE, box.y2 - DRAWN_SIZE, (tile.y + 1)*TILE_SIZE);
+        if(collisionX && collisionY){
+            res = true;
+        }
+    })
+    if(res){
+        ent.health = 0;
+        collisionEntities.splice(collisionEntities.indexOf(ent), 1);
+    }
     return res;
 }
