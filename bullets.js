@@ -14,10 +14,12 @@ class Bullet{
      * @param {{x: number, y: number}} end_point end pos; конечная позиция
      * @param {number} angle angle угол
      * @param {number} team team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
+     * @param {Boolean} HD HD текстуры
      */
-    constructor(name, start_point, end_point, team, angle = undefined){
+    constructor(name, start_point, end_point, team, angle = undefined, HD = false){
+        let hd = HD?'HD':'';
         this.img = new Image();
-        this.img.src = `images/5 Bullets/${name}.png`;
+        this.img.src = `images/5 Bullets/${name}${hd}.png`;
         if(angle == undefined)
         this.angle = Math.atan((end_point.y - start_point.y)/(end_point.x - start_point.x));
         else this.angle = angle;

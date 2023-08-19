@@ -48,7 +48,7 @@ function pointCollision(bullet){
                 colEntity.health -= 20;
                 colEntity.attacked = true;
                 if(colEntity.health <= 0){
-                    collisionEntities.splice(i, 1);
+                    colEntity.destroy();
                 }
                 res = true;
             }
@@ -183,8 +183,7 @@ function dieBlocksCollision(ent){
         }
     })
     if(res){
-        ent.health = 0;
-        collisionEntities.splice(collisionEntities.indexOf(ent), 1);
+        ent.destroy();
     }
     return res;
 }

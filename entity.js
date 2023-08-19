@@ -1,7 +1,7 @@
-"use strict"
+"use stri*this.spriteScalect"
 
 const 
-SPRITE_SIZE = 48,
+SPRITE_SIZE = 48, //48 - 264
 ANIM_RATE = 4,
 IMAGES_SRC = 'images/1 Characters/',
 DEGREES2RADIANS = Math.PI/180,
@@ -24,6 +24,9 @@ AnimFramesPatterns = {
     },
     fall: {
         min: 2, max: 3
+    },
+    walk: {
+        min: 0, max: 5
     }
 },
 Directions = {
@@ -49,8 +52,11 @@ class Entity{
      * @param {{x: number, y: number}} startPos start pos; стартовая позиция
      * @param {String} [gun='1'] gun name; название оружия
      * @param {number} [team=2] team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
+     * @param {Boolean} HD HD текстуры
      */
-    constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2){
+    constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2, HD = false){
+        let hd = HD?'HD':'';
+        this.spriteScale = HD ? 5.5: 1;
         this.startPos = structuredClone(startPos);
         this.weight = 1;
         this.jumpVelocity = DRAWN_SIZE * 2;
@@ -58,9 +64,9 @@ class Entity{
         this.maxHealth = 100;
         this.health = this.maxHealth;
         this.gun = new Image();
-        this.gun.src = `images/2 Guns/${gun}_1.png`;
+        this.gun.src = `images/2 Guns/${gun}_1${hd}.png`;
         this.gunLeft = new Image();
-        this.gunLeft.src = `images/2 Guns/${gun}_1Left.png`;
+        this.gunLeft.src = `images/2 Guns/${gun}_1Left${hd}.png`;
         this.dir = Directions.right;
         if(team === 2){
             this.dir = Math.random() > 0.5? Directions.right : Directions.left;
@@ -68,22 +74,22 @@ class Entity{
         this.charName = charName;
         this.images = {};
         this.images.idle = new Image();
-        this.images.idle.src = `${IMAGES_SRC}${charName}/Idle1.png`;
+        this.images.idle.src = `${IMAGES_SRC}${charName}/Idle1${hd}.png`;
         this.images.jump = new Image();
-        this.images.jump.src = `${IMAGES_SRC}${charName}/Jump1.png`;
-        this.images.run = new Image();
-        this.images.run.src = `${IMAGES_SRC}${charName}/Run1.png`;
+        this.images.jump.src = `${IMAGES_SRC}${charName}/Jump1${hd}.png`;
+        // this.images.run = new Image();
+        // this.images.run.src = `${IMAGES_SRC}${charName}/Run1${hd}.png`;
         this.images.walk = new Image();
-        this.images.walk.src = `${IMAGES_SRC}${charName}/Walk1.png`;
+        this.images.walk.src = `${IMAGES_SRC}${charName}/Walk1${hd}.png`;
         this.imagesLeft = {};
         this.imagesLeft.idle = new Image();
-        this.imagesLeft.idle.src = `${IMAGES_SRC}${charName}/Idle1Left.png`;
+        this.imagesLeft.idle.src = `${IMAGES_SRC}${charName}/Idle1Left${hd}.png`;
         this.imagesLeft.jump = new Image();
-        this.imagesLeft.jump.src = `${IMAGES_SRC}${charName}/Jump1Left.png`;
-        this.imagesLeft.run = new Image();
-        this.imagesLeft.run.src = `${IMAGES_SRC}${charName}/Run1Left.png`;
+        this.imagesLeft.jump.src = `${IMAGES_SRC}${charName}/Jump1Left${hd}.png`;
+        // this.imagesLeft.run = new Image();
+        // this.imagesLeft.run.src = `${IMAGES_SRC}${charName}/Run1Left${hd}.png`;
         this.imagesLeft.walk = new Image();
-        this.imagesLeft.walk.src = `${IMAGES_SRC}${charName}/Walk1Left.png`;
+        this.imagesLeft.walk.src = `${IMAGES_SRC}${charName}/Walk1Left${hd}.png`;
         this.pos = startPos;
         this.state = States.idle;
         this.curFrame = 0;
@@ -94,9 +100,9 @@ class Entity{
         this.animFramesPattern = AnimFramesPatterns.default;
         this.handleAngle = 0;
         this.hand = new Image();
-        this.hand.src =  `${IMAGES_SRC}${charName}/Hand.png`;
+        this.hand.src =  `${IMAGES_SRC}${charName}/Hand${hd}.png`;
         this.handRight = new Image();
-        this.handRight.src =  `${IMAGES_SRC}${charName}/HandRight.png`;
+        this.handRight.src =  `${IMAGES_SRC}${charName}/HandRight${hd}.png`;
         this.team = team;
         this.isJump = false;
         this.isOnFloor = true;
@@ -115,6 +121,10 @@ class Entity{
         }
     }
 
+    /**
+     * 
+     * @param {'default' | 'jump' | 'fall' | 'walk'} pattern 
+     */
     _setAnimFramesPattern(pattern = "default"){
         this.animFramesPattern = AnimFramesPatterns[pattern] || AnimFramesPatterns.default;
         if(this.curFrame < this.animFramesPattern.min || this.curFrame >= this.animFramesPattern.max) this.curFrame = this.animFramesPattern.min;
@@ -123,7 +133,7 @@ class Entity{
     draw(){
         this._setAnimFramesPattern();
         this.state = States.idle;
-        if(this.isMove) {this.state = States.walk;}
+        if(this.isMove) {this.state = States.walk; this._setAnimFramesPattern('walk');}
         if(this.isJump) {
             this.state = States.jump; this._setAnimFramesPattern('jump');
         }
@@ -154,12 +164,12 @@ class Entity{
         // c.fillStyle ='red';
         // c.fillRect(-5, 0, 10, 70);
         if(this.dir === Directions.right){
-            c.drawImage(this.gun, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 + 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
             c.drawImage(this.hand, 0, 0, this.hand.width, this.hand.height, -HAND_SIZE/2, 0, HAND_SIZE, this.hand.height / this.hand.width * HAND_SIZE);
+            c.drawImage(this.gun, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 + 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
         }
         else{
-            c.drawImage(this.gunLeft, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 - 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
             c.drawImage(this.handRight, 0, 0, this.hand.width, this.hand.height, -HAND_SIZE/2, 0, HAND_SIZE, this.hand.height / this.hand.width * HAND_SIZE);
+            c.drawImage(this.gunLeft, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 - 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
             
         }
         c.rotate(-this.handleAngle)
@@ -170,10 +180,10 @@ class Entity{
         c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         
         if(this.dir === Directions.right){
-            c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
+            c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
         else{
-            c.drawImage(this.imagesLeft[this.state], (3 - this.curFrame) * SPRITE_SIZE, 0, SPRITE_SIZE, SPRITE_SIZE, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
+            c.drawImage(this.imagesLeft[this.state], ((this.state === States.walk?5 : 3) - this.curFrame) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
     }
 
@@ -321,9 +331,9 @@ class Entity{
         let randomShift = (Math.random()-0.5)*2;
         if(Math.random() > 0.7) randomShift =  0;
         if(this.compateDirection('right'))
-            bullets.push(new Bullet('3', {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20));
+            bullets.push(new Bullet('3', {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true));
         else
-            bullets.push(new Bullet('3', {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20));
+            bullets.push(new Bullet('3', {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true));
     }
 
     _updateAi(){
@@ -444,5 +454,13 @@ class Entity{
             }
         }
         this._updateEnemyHand();
+    }
+
+    destroy(){
+        let box = this.getBox();
+        if(this.team === 2){
+            new Drop({x: box.x, y: box.y2-TILE_SIZE}, ()=>{console.log('съел');});
+        }
+        collisionEntities.splice(collisionEntities.indexOf(this), 1);
     }
 }

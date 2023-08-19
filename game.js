@@ -3,7 +3,7 @@ const c = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const p = new Entity('Biker', {x: 200, y: 200}, '1', 1);
+const p = new Entity('Biker', {x: 200, y: 200}, '1', 1, true);
 p.health = 300;
 // const ent = new Entity('Biker', {x: 1000, y: 200})
 // ent.setDirection('left');
@@ -18,6 +18,9 @@ function animate(){
     c.fillRect(0, 0, canvas.width, canvas.height);
     updateCameraPos();
     c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
+    drops.forEach(d=>{
+        d.update();
+    })
     // c.fillStyle = 'green';
     // c.fillRect(canvas.width*0.35, canvas.height*0.3, canvas.width*0.3, canvas.height*0.5)
     updatePlayerDir();
@@ -34,7 +37,7 @@ function animate(){
 }
 
 ENEMY_SPAWN_BLOCKS.forEach(block=>{
-    new Entity('Biker', {x: block.x*TILE_SIZE, y: block.y*TILE_SIZE-DRAWN_SIZE}, '1')
+    new Entity('Biker', {x: block.x*TILE_SIZE, y: block.y*TILE_SIZE-DRAWN_SIZE}, '1', 2, true)
 })
 
 function updateCameraPos(){
@@ -83,9 +86,9 @@ var keys_pressed = [], up = 0;
 document.addEventListener('click', ()=>{
     if(GAME_STATE.end) return
     if(p.dir === Directions.right)
-        bullets.push(new Bullet('3', {x: p.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: p.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: mouse.x + cameraPos.x, y: mouse.y + cameraPos.y}, 1));
+        bullets.push(new Bullet('6', {x: p.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: p.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: mouse.x + cameraPos.x, y: mouse.y + cameraPos.y}, 1, undefined, true));
     if(p.dir === Directions.left)
-        bullets.push(new Bullet('3', {x: p.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: p.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: mouse.x + cameraPos.x, y: mouse.y + cameraPos.y}, 1));
+        bullets.push(new Bullet('6', {x: p.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: p.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: mouse.x + cameraPos.x, y: mouse.y + cameraPos.y}, 1, undefined, true));
 })
 
 function key_down(e) {
