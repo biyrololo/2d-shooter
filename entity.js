@@ -34,7 +34,13 @@ AI_BOX = {
     width: DRAWN_SIZE*5,
     height: DRAWN_SIZE*2
 },
+AI_WALK_STATES = {
+    stay: 1,
+    walk: 2
+}
+,
 AI_MIN_DIST = DRAWN_SIZE*2;
+
 class Entity{
     /**
      * 
@@ -55,7 +61,7 @@ class Entity{
         this.gunLeft.src = `images/2 Guns/${gun}_1Left.png`;
         this.dir = Directions.right;
         if(team === 2){
-            this.dir = p.pos.x > startPos.x? Directions.right : Directions.left;
+            this.dir = Math.random() > 0.5? Directions.right : Directions.left;
         }
         this.charName = charName;
         this.images = {};
@@ -94,6 +100,10 @@ class Entity{
         this.isOnFloor = true;
         this.cooldownShot = {cur: 0, max: 150};
         this.attacked = {state: false, timeout: 300};
+        this.AI_WALK = {
+            time: {cur: 0, mTime: 200 + Math.floor(Math.random()*50)},
+            state: AI_WALK_STATES.walk 
+        }
         collisionEntities.push(this);
     }
 
@@ -321,22 +331,62 @@ class Entity{
                 y2: (box.y+box.y2)/2 - AI_BOX.height/2 + AI_BOX.height,
             }
         }
-        if(this.attacked.state){
-            AI_area.x -= DRAWN_SIZE*2;
-            AI_area.x2 += DRAWN_SIZE*2;
-        }
+        // if(this.attacked.state){
+        //     AI_area.x -= DRAWN_SIZE*2;
+        //     AI_area.x2 += DRAWN_SIZE*2;
+        // }
         // c.fillRect(AI_area.x - cameraPos.x, AI_area.y - cameraPos.y, AI_area.x2 - AI_area.x, AI_area.y2 - AI_area.y)
-        let resAI = entitiesInAreaAI(AI_area, this);
-        if(resAI.res){
-            this._updateEnemyHand();
-            this.setDirection(resAI.dir);
-            if(resAI.dist >= AI_MIN_DIST)
-                this.move(this.dir * 0.8);
-            else 
-                this.isMove = false;
-        }
-        else{
+
+        // let resAI = entitiesInAreaAI(AI_area, this);
+        // if(resAI.res){
+        //     this._updateEnemyHand();
+        //     this.setDirection(resAI.dir);
+        //     if(resAI.dist >= AI_MIN_DIST)
+        //         this.move(this.dir * 0.8);
+        //     else 
+        //         this.isMove = false;
+        // }
+        // else{
+        //     this.isMove = false;
+        // }
+        this._aiNormalMove(0.5);
+    }
+
+    /**
+     * Обычная ходьба, когда не видно игрока
+     * @param {number} x множитель скорости
+     */
+    _aiNormalMove(x = 0){
+        if(this.AI_WALK.state === AI_WALK_STATES.walk){
+            if(this.AI_WALK.time.cur > 0){
+                this.pos.x+=this.dir*this.speed*GLOBAS_SCALE*x;
+                let bCollRes = bottomCollisionWithMap(this);
+                if(entitiesCollision(this) || fullCollWithMap(this) || !bCollRes.res){
+                    this.pos.x-=this.dir*this.speed*GLOBAS_SCALE*x;
+                    this.dir = -1 * this.dir;
+                    bCollRes = bottomCollisionWithMap(this);
+                    if(!bCollRes.res){
+                        this.pos.x+=this.dir*this.speed*GLOBAS_SCALE*x;
+                    }
+                    this.AI_WALK.time.cur = this.AI_WALK.time.mTime - this.AI_WALK.time.cur;
+                }
+                else{
+                    this.AI_WALK.time.cur--;
+                }
+                this.isMove = true;
+            }
+            else if(this.AI_WALK.time.cur <= 0){
+                this.AI_WALK.state = AI_WALK_STATES.stay;
+                this.AI_WALK.time.cur = this.AI_WALK.time.mTime;
+            }
+        } else if(this.AI_WALK.state === AI_WALK_STATES.stay){
             this.isMove = false;
+            this.AI_WALK.time.cur--;
+            if(this.AI_WALK.time.cur <= 0){
+                this.AI_WALK.state = AI_WALK_STATES.walk;
+                this.AI_WALK.time.cur = this.AI_WALK.time.mTime;
+                this.dir = -1 * this.dir;
+            }
         }
     }
 }
