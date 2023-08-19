@@ -4,6 +4,7 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const p = new Entity('Biker', {x: 200, y: 200}, '1', 1);
+p.health = 300;
 // const ent = new Entity('Biker', {x: 1000, y: 200})
 // ent.setDirection('left');
 

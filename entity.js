@@ -39,7 +39,8 @@ AI_WALK_STATES = {
     walk: 2
 }
 ,
-AI_MIN_DIST = DRAWN_SIZE*2;
+AI_MIN_DIST = DRAWN_SIZE*2,
+AI_MAX_DIST = DRAWN_SIZE * 6;
 
 class Entity{
     /**
@@ -50,6 +51,7 @@ class Entity{
      * @param {number} [team=2] team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
      */
     constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2){
+        this.startPos = structuredClone(startPos);
         this.weight = 1;
         this.jumpVelocity = DRAWN_SIZE * 2;
         this.jumpDuration = {cur: 0, max: 12};
@@ -99,12 +101,18 @@ class Entity{
         this.isJump = false;
         this.isOnFloor = true;
         this.cooldownShot = {cur: 0, max: 150};
-        this.attacked = {state: false, timeout: 300};
+        this.attacked = false;
         this.AI_WALK = {
             time: {cur: 0, mTime: 200 + Math.floor(Math.random()*50)},
-            state: AI_WALK_STATES.walk 
+            state: AI_WALK_STATES.walk,
+            dir: Directions.left
         }
         collisionEntities.push(this);
+        this.followPlayer = {
+            state: false,
+            time: 0,
+            step: 5,
+        }
     }
 
     _setAnimFramesPattern(pattern = "default"){
@@ -198,13 +206,17 @@ class Entity{
      * Move entity in cur dir on x*speed
      * Двигает entity в текущем направлении на x*speed
      * @param {number} x speed factor; множитель скорости
+     * @returns {Boolean} врезался при движении или нет
      */
     move(x = 0){
+        let res = false;
         this.pos.x+=x*this.speed*GLOBAS_SCALE;
         if(entitiesCollision(this) || fullCollWithMap(this)){
             this.pos.x-=x*this.speed*GLOBAS_SCALE;
+            res = true;
         }
         this.isMove = true;
+        return res;
     }
 
     /**
@@ -337,6 +349,16 @@ class Entity{
         // }
         // c.fillRect(AI_area.x - cameraPos.x, AI_area.y - cameraPos.y, AI_area.x2 - AI_area.x, AI_area.y2 - AI_area.y)
 
+        let resAI = entitiesInAreaAI(AI_area, this);
+        if(resAI.res || this.attacked){
+            this.followPlayer.state = true;
+            if(this.followPlayer.time < this.AI_WALK.time.mTime*2)
+                this.followPlayer.time+=this.followPlayer.step;
+                this.attacked = false;
+        }
+        if(this.followPlayer.state)
+            this._aiFollowPlayer(resAI.dist, resAI.dir);
+        else
         // let resAI = entitiesInAreaAI(AI_area, this);
         // if(resAI.res){
         //     this._updateEnemyHand();
@@ -349,7 +371,7 @@ class Entity{
         // else{
         //     this.isMove = false;
         // }
-        this._aiNormalMove(0.5);
+            this._aiNormalMove(0.5);
     }
 
     /**
@@ -357,6 +379,12 @@ class Entity{
      * @param {number} x множитель скорости
      */
     _aiNormalMove(x = 0){
+        this.handleAngle = Math.PI/8;
+        if(this.compateDirection('right')){
+            this.handleAngle*=-1;
+            this.AI_WALK.dir = Directions.right;
+        }
+        else this.AI_WALK.dir = Directions.left;
         if(this.AI_WALK.state === AI_WALK_STATES.walk){
             if(this.AI_WALK.time.cur > 0){
                 this.pos.x+=this.dir*this.speed*GLOBAS_SCALE*x;
@@ -377,7 +405,7 @@ class Entity{
             }
             else if(this.AI_WALK.time.cur <= 0){
                 this.AI_WALK.state = AI_WALK_STATES.stay;
-                this.AI_WALK.time.cur = this.AI_WALK.time.mTime;
+                this.AI_WALK.time.cur = this.AI_WALK.time.mTime + Math.floor(Math.random()*10);
             }
         } else if(this.AI_WALK.state === AI_WALK_STATES.stay){
             this.isMove = false;
@@ -388,5 +416,33 @@ class Entity{
                 this.dir = -1 * this.dir;
             }
         }
+    }
+
+    /**
+     * Следует за игроком
+     * @param {number} dist расстояние до игрока
+     * @param {number} dir новое направление движения для ентити
+     */
+    _aiFollowPlayer(dist = 0, dir = 0){
+        if(dir !== 0)
+            this.setDirection(dir);
+        if(Math.pow(p.pos.x - this.pos.x, 2) + Math.pow(p.pos.y-this.pos.y, 2) <= AI_MAX_DIST*AI_MAX_DIST){
+            if((dist >= AI_MIN_DIST || dist === 0) && Math.abs(this.startPos.x - this.pos.x) < this.AI_WALK.time.mTime*this.speed*GLOBAS_SCALE*0.5){
+                this.isMove = !this.move(this.dir * 0.6);
+                if(!bottomCollisionWithMap(this).res){
+                    this.move(this.dir * (-0.6));
+                    this.isMove = false;
+                }
+            }
+            else 
+                this.isMove = false;
+        } else{
+            this.isMove = false;
+            this.followPlayer.time--;
+            if(this.followPlayer.time === 0){
+                this.followPlayer.state = false;
+            }
+        }
+        this._updateEnemyHand();
     }
 }

@@ -46,7 +46,7 @@ function pointCollision(bullet){
             let collisionX = isInInterval(eBox.x, point.x, eBox.x2);
             if(collisionX && collisionY && colEntity.team !== bullet.team){
                 colEntity.health -= 20;
-                colEntity.attacked.state = true;
+                colEntity.attacked = true;
                 if(colEntity.health <= 0){
                     collisionEntities.splice(i, 1);
                 }
