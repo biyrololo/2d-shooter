@@ -45,7 +45,7 @@ function pointCollision(bullet){
             let collisionY = isInInterval(eBox.y, point.y, eBox.y2);
             let collisionX = isInInterval(eBox.x, point.x, eBox.x2);
             if(collisionX && collisionY && colEntity.team !== bullet.team){
-                colEntity.health -= 20;
+                colEntity.health -= bullet.damage;
                 colEntity.attacked = true;
                 if(colEntity.health <= 0){
                     colEntity.destroy();
@@ -167,7 +167,7 @@ function fullCollWithMap(ent){
 }
 
 /**
- * Проверяет колизию ног с картой
+ * Проверяет колизию ног со смертельными зонами
  * @param {Entity} ent 
  * @returns {Boolean}
  */
@@ -177,7 +177,7 @@ function dieBlocksCollision(ent){
     DIE_ENTITY_BLOCKS.forEach(tile=>{
         //block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - MAP_DRAWN_WIDTH/3
         let collisionX = isInInterval(tile.x*TILE_SIZE, box.x, (tile.x + 1)*TILE_SIZE) || isInInterval(tile.x*TILE_SIZE, box.x2, (tile.x + 1)*TILE_SIZE);
-        let collisionY = isInInterval(tile.y*TILE_SIZE, box.y, (tile.y + 1)*TILE_SIZE) || isInInterval(tile.y*TILE_SIZE, box.y2 - DRAWN_SIZE, (tile.y + 1)*TILE_SIZE);
+        let collisionY = isInInterval(tile.y*TILE_SIZE, box.y, (tile.y + 1)*TILE_SIZE) || isInInterval(tile.y*TILE_SIZE, box.y2, (tile.y + 1)*TILE_SIZE);
         if(collisionX && collisionY){
             res = true;
         }

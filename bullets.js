@@ -1,5 +1,4 @@
 const BULLET_SIZE = 10 * GLOBAS_SCALE,
-BULLET_SPEED = 15 * GLOBAS_SCALE,
 MAX_DIST = 800 * GLOBAS_SCALE;
 
 /**
@@ -10,14 +9,18 @@ class Bullet{
     /**
      * 
      * @param {String} name bullet image name; название изображения пули
+     * @param {number} speed скорость пули
+     * @param {number} damage дамаг пули
      * @param {{x: number, y: number}} start_point start pos; начальная позиция
      * @param {{x: number, y: number}} end_point end pos; конечная позиция
      * @param {number} angle angle угол
      * @param {number} team team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
      * @param {Boolean} HD HD текстуры
      */
-    constructor(name, start_point, end_point, team, angle = undefined, HD = false){
+    constructor(name, speed, damage, start_point, end_point, team, angle = undefined, HD = false){
         let hd = HD?'HD':'';
+        this.damage = damage;
+        this.basicSpeed = speed;
         this.img = new Image();
         this.img.src = `images/5 Bullets/${name}${hd}.png`;
         if(angle == undefined)
@@ -27,8 +30,8 @@ class Bullet{
             this.angle+=Math.PI;
         this.pos = {...start_point};
         this.linearSpeed = {
-            x: BULLET_SPEED*Math.cos(this.angle),
-            y: BULLET_SPEED*Math.sin(this.angle)
+            x: speed*Math.cos(this.angle),
+            y: speed*Math.sin(this.angle)
         };
         this.dist = 0;
         this.team = team;
@@ -61,7 +64,7 @@ function updateBullets(){
         (b, i)=>{
         b.pos.x+=b.linearSpeed.x;
         b.pos.y+=b.linearSpeed.y;
-        b.dist+=BULLET_SPEED;
+        b.dist+=b.basicSpeed;
         let collision = pointCollision(b);
         if(b.dist >= MAX_DIST || collision){
             bullets.splice(i, 1);

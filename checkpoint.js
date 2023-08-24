@@ -1,19 +1,15 @@
-/**
- * @type {Array<Drop>}
- */
-const drops = [];
-
-class Drop{
+class Checkpoint{
     /**
      * 
-     * @param {{x: number, y: number}} pos
-     * @param  {()=>void} onPlayerCollision 
+     * @param {{x: number, y: number}} pos 
      */
-    constructor(pos, onPlayerCollision){
+    constructor(pos){
+        this.pos = {
+            x: pos.x * TILE_SIZE,
+            y: pos.y * TILE_SIZE
+        };
+        this.isActivated = false;
         this.size = TILE_SIZE;
-        this.pos = pos;
-        this.customOnPlayerCollision = onPlayerCollision;
-        drops.push(this);
     }
 
     update(){
@@ -22,17 +18,16 @@ class Drop{
     }
 
     _draw(){
-        c.fillStyle = 'green';
+        c.fillStyle = this.isActivated?'blue':'green';
         c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
     }
 
     _onPlayerCollision(){
-        this.customOnPlayerCollision();
-        this._destroy();
-    }
-
-    _destroy(){
-        drops.splice(drops.indexOf(this), 1);
+        if(!this.isActivated){
+            this.isActivated = true;
+            SPAWN_POINT.x = this.pos.x - DRAWN_SIZE/2;
+            SPAWN_POINT.y = this.pos.y - DRAWN_SIZE;
+        }
     }
 
     _checkPlayerCollision(){

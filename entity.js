@@ -63,13 +63,19 @@ class Entity{
         this.jumpDuration = {cur: 0, max: 12};
         this.maxHealth = 100;
         this.health = this.maxHealth;
+        /**
+         * @type {{src: {right: string, left: string}, srcHD: {right: string, left: string}, reloadMax: number, baseDamage: number, bullet: string, shotEffect: string, bulletSpeed: number}}
+         */
+        this.gunObj = structuredClone(getGun(gun));
+        this.reload = 0;
         this.gun = new Image();
-        this.gun.src = `images/2 Guns/${gun}_1${hd}.png`;
+        this.gun.src = `images/2 Guns/${this.gunObj.srcHD.right}`;
         this.gunLeft = new Image();
-        this.gunLeft.src = `images/2 Guns/${gun}_1Left${hd}.png`;
+        this.gunLeft.src = `images/2 Guns/${this.gunObj.srcHD.left}`;
         this.dir = Directions.right;
         if(team === 2){
             this.dir = Math.random() > 0.5? Directions.right : Directions.left;
+            this.gunObj.reloadMax = this.gunObj.reloadMax*2;
         }
         this.charName = charName;
         this.images = {};
@@ -90,7 +96,8 @@ class Entity{
         // this.imagesLeft.run.src = `${IMAGES_SRC}${charName}/Run1Left${hd}.png`;
         this.imagesLeft.walk = new Image();
         this.imagesLeft.walk.src = `${IMAGES_SRC}${charName}/Walk1Left${hd}.png`;
-        this.pos = startPos;
+        this.pos = {x: 0, y: 0};
+        this.setPos(startPos);
         this.state = States.idle;
         this.curFrame = 0;
         this.counter = {cur: 0, fq: 5};
@@ -106,7 +113,6 @@ class Entity{
         this.team = team;
         this.isJump = false;
         this.isOnFloor = true;
-        this.cooldownShot = {cur: 0, max: 150};
         this.attacked = false;
         this.AI_WALK = {
             time: {cur: 0, mTime: 200 + Math.floor(Math.random()*50)},
@@ -114,11 +120,19 @@ class Entity{
             dir: Directions.left
         }
         collisionEntities.push(this);
+        this.shotEffect = new Image();
+        this.shotEffect.src = `images/4 Shoot_effects/1_1.png`;
+        this.shotEffectFrame = {
+            curFrame: 0,
+            max: Math.floor(this.shotEffect.width/this.shotEffect.height)-1,
+            play: false
+        }
         this.followPlayer = {
             state: false,
             time: 0,
             step: 5,
         }
+        this.showReload = false;
     }
 
     /**
@@ -130,6 +144,14 @@ class Entity{
         if(this.curFrame < this.animFramesPattern.min || this.curFrame >= this.animFramesPattern.max) this.curFrame = this.animFramesPattern.min;
     }
 
+    /**
+     * Задать позицию
+     * @param {{x: number, y: number}} newPos 
+     */
+    setPos(newPos){
+        this.pos = structuredClone(newPos);
+    }
+    
     draw(){
         this._setAnimFramesPattern();
         this.state = States.idle;
@@ -143,11 +165,11 @@ class Entity{
         
         let translatePos = {};
         if(this.dir === Directions.right){
-        translatePos = {
-            x: this.pos.x + 18*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2 - cameraPos.x,
-            y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y
-        };
-    }
+            translatePos = {
+                x: this.pos.x + 18*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2 - cameraPos.x,
+                y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y
+            };
+        }
         else{
             translatePos = {
                 x: this.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE- cameraPos.x,
@@ -166,19 +188,36 @@ class Entity{
         if(this.dir === Directions.right){
             c.drawImage(this.hand, 0, 0, this.hand.width, this.hand.height, -HAND_SIZE/2, 0, HAND_SIZE, this.hand.height / this.hand.width * HAND_SIZE);
             c.drawImage(this.gun, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 + 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
+            if(this.shotEffectFrame.play){
+                c.rotate(-Math.PI/2);
+                c.drawImage(this.shotEffect, this.shotEffectFrame.curFrame*this.shotEffect.height, 0, this.shotEffect.height, this.shotEffect.height, -HAND_SIZE*3/2 - HAND_SIZE*3.5 - HAND_SIZE-2, -HAND_SIZE*1.1, HAND_SIZE*3, HAND_SIZE*3);
+                c.rotate(Math.PI/2);
+            }
         }
         else{
             c.drawImage(this.handRight, 0, 0, this.hand.width, this.hand.height, -HAND_SIZE/2, 0, HAND_SIZE, this.hand.height / this.hand.width * HAND_SIZE);
             c.drawImage(this.gunLeft, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 - 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
+            if(this.shotEffectFrame.play){
+                c.rotate(-Math.PI/2);
+                c.drawImage(this.shotEffect, this.shotEffectFrame.curFrame*this.shotEffect.height, 0, this.shotEffect.height, this.shotEffect.height, -HAND_SIZE*3/2 - HAND_SIZE*3.5 - HAND_SIZE-2, -HAND_SIZE*1.9, HAND_SIZE*3, HAND_SIZE*3);
+                c.rotate(Math.PI/2);
+            }
             
         }
         c.rotate(-this.handleAngle)
         c.translate(-translatePos.x, -translatePos.y);
-        c.fillStyle= 'brown';
-        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
-        c.fillStyle= 'red';
-        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
-        
+        c.fillStyle= 'rgba(104, 32, 32, .6)';
+        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        c.fillStyle= '#CC3F3F';
+        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        // c.drawImage(HEALTH_BAR.empty, 0, 0, HEALTH_BAR.empty.width, HEALTH_BAR.empty.height, this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        // c.drawImage(HEALTH_BAR.filled, 0, 0, HEALTH_BAR.empty.width*(this.health > 0?this.health / this.maxHealth : 0), HEALTH_BAR.empty.height, this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        if(this.showReload){
+            c.fillStyle= 'rgba(168, 134, 19, .5)';
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/5, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+            c.fillStyle= '#ffca1c';
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/5, DRAWN_SIZE/2 * ((this.gunObj.reloadMax - this.reload))/(this.gunObj.reloadMax), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        }
         if(this.dir === Directions.right){
             c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
@@ -204,12 +243,23 @@ class Entity{
         dieBlocksCollision(this);
     }
 
+    /**
+     * Запускат анимацю эффекта выстрела
+     */
+    playShotEffect(){
+        this.shotEffectFrame.play = true;
+        this.shotEffectFrame.curFrame = 0;
+    }
+
     updateAnim(){
         this.counter.cur++;
         if(this.counter.cur % this.counter.fq === 0){
             this.curFrame++;
+            this.shotEffectFrame.curFrame++;
+            if(this.shotEffectFrame.curFrame > this.shotEffectFrame.max) this.shotEffectFrame.play = false;
             if(this.curFrame > 3) this.curFrame = 0;
         }
+        if(this.reload > 0) this.reload--;
     }
 
     /**
@@ -318,12 +368,9 @@ class Entity{
         );
         this.handleAngle = angle - Math.PI/2;
         if(this.compateDirection('left')) this.handleAngle += Math.PI;
-        if(this.cooldownShot.cur === 0){
+        if(this.reload === 0){
             this._shot();
-            this.cooldownShot.cur = this.cooldownShot.max;
-        }
-        else{
-            this.cooldownShot.cur--;
+            this.reload = this.gunObj.reloadMax;
         }
     }
 
@@ -331,9 +378,10 @@ class Entity{
         let randomShift = (Math.random()-0.5)*2;
         if(Math.random() > 0.7) randomShift =  0;
         if(this.compateDirection('right'))
-            bullets.push(new Bullet('3', {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true));
+            bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage, {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true));
         else
-            bullets.push(new Bullet('3', {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true));
+            bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage, {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true));
+        this.playShotEffect();
     }
 
     _updateAi(){
