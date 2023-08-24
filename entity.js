@@ -55,6 +55,7 @@ class Entity{
      * @param {Boolean} HD HD текстуры
      */
     constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2, HD = false){
+        this.gunName = gun;
         let hd = HD?'HD':'';
         this.spriteScale = HD ? 5.5: 1;
         this.startPos = structuredClone(startPos);
@@ -504,10 +505,35 @@ class Entity{
         this._updateEnemyHand();
     }
 
+    /**
+     * Добавляет здоровье
+     * @param {number} addedHealth 
+     */
+    addHealth(addedHealth){
+        this.health += addedHealth;
+        if(this.health > this.maxHealth) this.health = this.maxHealth;
+    }
+
+    /**
+     * Сменить оружие
+     * @param {'1'} newGun 
+     */
+    setGun(newGun){
+        this.gunName = newGun;
+        this.gunObj = structuredClone(getGun(newGun));
+        this.gun.src = `images/2 Guns/${this.gunObj.srcHD.right}`;
+        this.gunLeft = new Image();
+        this.gunLeft.src = `images/2 Guns/${this.gunObj.srcHD.left}`;
+    }
+
     destroy(){
         let box = this.getBox();
         if(this.team === 2){
-            new Drop({x: box.x, y: box.y2-TILE_SIZE}, ()=>{console.log('съел');});
+            let dropPos = {x: box.x, y: box.y2-TILE_SIZE};
+            if(p.health < p.maxHealth*0.3 || Math.random() > 0.8)
+                new Drop({x: box.x, y: box.y2-TILE_SIZE}, 'health');
+            else if(Math.random() > 0.4 && Object.keys(GUNS).indexOf(this.gunName) > Object.keys(GUNS).indexOf(p.gunName))
+                new Drop({x: box.x, y: box.y2-TILE_SIZE}, 'gun', this.gunName);
         }
         collisionEntities.splice(collisionEntities.indexOf(this), 1);
     }

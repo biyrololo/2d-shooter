@@ -7,12 +7,19 @@ class Drop{
     /**
      * 
      * @param {{x: number, y: number}} pos
-     * @param  {()=>void} onPlayerCollision 
+     * @param  {'health' | 'gun'} type
+     * @param {'1'} gun 
      */
-    constructor(pos, onPlayerCollision){
+    constructor(pos, type, gun = null){
         this.size = TILE_SIZE;
         this.pos = pos;
-        this.customOnPlayerCollision = onPlayerCollision;
+        this.type = type;
+        if(type === 'gun' && gun){
+            this.gunName = gun;
+            this.gun = getGun(gun);
+            this.gunImg = new Image();
+            this.gunImg.src = `images/2 Guns/${this.gun.srcHD.right}`;
+        }
         drops.push(this);
     }
 
@@ -22,12 +29,27 @@ class Drop{
     }
 
     _draw(){
-        c.fillStyle = 'green';
-        c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
+        switch (this.type){
+            case 'health':
+                c.fillStyle = 'pink';
+                c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
+                break;
+            case 'gun':
+                c.drawImage(this.gunImg, 0, 0, this.gunImg.width, this.gunImg.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
+                break;
+        }
+        
     }
 
     _onPlayerCollision(){
-        this.customOnPlayerCollision();
+        switch (this.type){
+            case 'health':
+                p.addHealth(Math.floor(p.maxHealth*0.35));
+                break;
+            case 'gun':
+                p.setGun(this.gunName);
+                break;
+        }
         this._destroy();
     }
 

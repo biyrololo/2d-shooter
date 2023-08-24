@@ -45,8 +45,8 @@ function animate(){
     requestAnimationFrame(animate);
 }
 
-animate();
-startGame();
+// animate();
+// startGame();
 
 function spawnEnemies(){
     ENEMY_SPAWN_BLOCKS.forEach(block=>{
