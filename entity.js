@@ -1,4 +1,4 @@
-"use stri*this.spriteScalect"
+"use strict"
 
 const 
 SPRITE_SIZE = 48, //48 - 264
@@ -53,8 +53,9 @@ class Entity{
      * @param {String} [gun='1'] gun name; название оружия
      * @param {number} [team=2] team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
      * @param {Boolean} HD HD текстуры
+     * @param {number} maxHealth макс хп
      */
-    constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2, HD = false){
+    constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2, HD = false, maxHealth = 100){
         this.gunName = gun;
         let hd = HD?'HD':'';
         this.spriteScale = HD ? 5.5: 1;
@@ -62,12 +63,13 @@ class Entity{
         this.weight = 1;
         this.jumpVelocity = DRAWN_SIZE * 2;
         this.jumpDuration = {cur: 0, max: 12};
-        this.maxHealth = 100;
+        this.maxHealth = maxHealth;
         this.health = this.maxHealth;
         /**
-         * @type {{src: {right: string, left: string}, srcHD: {right: string, left: string}, reloadMax: number, baseDamage: number, bullet: string, shotEffect: string, bulletSpeed: number}}
+         * 
+         * @type {{src: {right: string, left: string}, srcHD: {right: string, left: string}, reloadMax: number, baseDamage: number, bullet: string, shotEffect: string, bulletSpeed: number, offset: number, maxDistScale?: number, bulletSize?: number}}
          */
-        this.gunObj = structuredClone(getGun(gun));
+        this.gunObj = structuredClone(getGun(this.gunName));
         this.reload = 0;
         this.gun = new Image();
         this.gun.src = `images/2 Guns/${this.gunObj.srcHD.right}`;
@@ -122,7 +124,7 @@ class Entity{
         }
         collisionEntities.push(this);
         this.shotEffect = new Image();
-        this.shotEffect.src = `images/4 Shoot_effects/1_1.png`;
+        this.shotEffect.src = `images/4 Shoot_effects/${this.gunObj.shotEffect}.png`;
         this.shotEffectFrame = {
             curFrame: 0,
             max: Math.floor(this.shotEffect.width/this.shotEffect.height)-1,
@@ -191,7 +193,7 @@ class Entity{
             c.drawImage(this.gun, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 + 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
             if(this.shotEffectFrame.play){
                 c.rotate(-Math.PI/2);
-                c.drawImage(this.shotEffect, this.shotEffectFrame.curFrame*this.shotEffect.height, 0, this.shotEffect.height, this.shotEffect.height, -HAND_SIZE*3/2 - HAND_SIZE*3.5 - HAND_SIZE-2, -HAND_SIZE*1.1, HAND_SIZE*3, HAND_SIZE*3);
+                c.drawImage(this.shotEffect, this.shotEffectFrame.curFrame*this.shotEffect.height, 0, this.shotEffect.height, this.shotEffect.height, -HAND_SIZE*3/2 - HAND_SIZE*3.5 - this.gun.height / this.gun.width * HAND_SIZE, -HAND_SIZE*1.1 - HAND_SIZE*this.gunObj.offset, HAND_SIZE*3, HAND_SIZE*3);
                 c.rotate(Math.PI/2);
             }
         }
@@ -200,7 +202,7 @@ class Entity{
             c.drawImage(this.gunLeft, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 - 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
             if(this.shotEffectFrame.play){
                 c.rotate(-Math.PI/2);
-                c.drawImage(this.shotEffect, this.shotEffectFrame.curFrame*this.shotEffect.height, 0, this.shotEffect.height, this.shotEffect.height, -HAND_SIZE*3/2 - HAND_SIZE*3.5 - HAND_SIZE-2, -HAND_SIZE*1.9, HAND_SIZE*3, HAND_SIZE*3);
+                c.drawImage(this.shotEffect, this.shotEffectFrame.curFrame*this.shotEffect.height, 0, this.shotEffect.height, this.shotEffect.height, -HAND_SIZE*3/2 - HAND_SIZE*3.5 - this.gun.height / this.gun.width * HAND_SIZE, -HAND_SIZE*1.9 + HAND_SIZE*this.gunObj.offset, HAND_SIZE*3, HAND_SIZE*3);
                 c.rotate(Math.PI/2);
             }
             
@@ -260,7 +262,7 @@ class Entity{
             if(this.shotEffectFrame.curFrame > this.shotEffectFrame.max) this.shotEffectFrame.play = false;
             if(this.curFrame > 3) this.curFrame = 0;
         }
-        if(this.reload > 0) this.reload--;
+        if(this.reload > 0) {this.reload--; if(this.reload < 0) this.reload = 0;}
     }
 
     /**
@@ -378,10 +380,22 @@ class Entity{
     _shot(){
         let randomShift = (Math.random()-0.5)*2;
         if(Math.random() > 0.7) randomShift =  0;
-        if(this.compateDirection('right'))
-            bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage, {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x+DRAWN_SIZE/2 + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true));
-        else
-            bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage, {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, {x: this.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE, y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE}, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true));
+        let handPos;
+        if(this.compateDirection('right')){
+                let translatePos = {
+                    x: this.pos.x + 18*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2,
+                    y: this.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*this.gunObj.offset
+                };
+                handPos = {x: translatePos.x + (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(Math.PI+this.handleAngle), y: translatePos.y + (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(this.handleAngle)};
+        }
+        else{
+            let translatePos = {
+                x: this.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE,
+                y: this.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*this.gunObj.offset,
+            }
+            handPos = {x: translatePos.x - (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(this.handleAngle), y: translatePos.y + (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(this.handleAngle)};
+        }
+            bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage, handPos, handPos, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true, this.gunObj.bulletSize || 1, this.gunObj.maxDistScale || 1));
         this.playShotEffect();
     }
 
@@ -517,13 +531,14 @@ class Entity{
     /**
      * Сменить оружие
      * @param {'1'} newGun 
+     * @param {Boolean} hd hd текстуры или нет
      */
-    setGun(newGun){
+    setGun(newGun, hd = true){
         this.gunName = newGun;
         this.gunObj = structuredClone(getGun(newGun));
         this.gun.src = `images/2 Guns/${this.gunObj.srcHD.right}`;
-        this.gunLeft = new Image();
         this.gunLeft.src = `images/2 Guns/${this.gunObj.srcHD.left}`;
+        this.shotEffect.src = `images/4 Shoot_effects/${this.gunObj.shotEffect}.png`;
     }
 
     destroy(){

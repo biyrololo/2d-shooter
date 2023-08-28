@@ -16,8 +16,9 @@ class Bullet{
      * @param {number} angle angle угол
      * @param {number} team team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
      * @param {Boolean} HD HD текстуры
+     * @param {number} maxDistScale макс расстояние полета пули
      */
-    constructor(name, speed, damage, start_point, end_point, team, angle = undefined, HD = false){
+    constructor(name, speed, damage, start_point, end_point, team, angle = undefined, HD = false, size = 1, maxDistScale = 1){
         let hd = HD?'HD':'';
         this.damage = damage;
         this.basicSpeed = speed;
@@ -35,6 +36,8 @@ class Bullet{
         };
         this.dist = 0;
         this.team = team;
+        this.size = BULLET_SIZE*size;
+        this.maxDistScale = maxDistScale;
     }
 }
 
@@ -66,11 +69,11 @@ function updateBullets(){
         b.pos.y+=b.linearSpeed.y;
         b.dist+=b.basicSpeed;
         let collision = pointCollision(b);
-        if(b.dist >= MAX_DIST || collision){
+        if(b.dist >= MAX_DIST*b.maxDistScale || collision){
             bullets.splice(i, 1);
         }
         else{
-            c.drawImage(b.img, 0, 0, b.img.width, b.img.height, b.pos.x-BULLET_SIZE/2 - cameraPos.x, b.pos.y-BULLET_SIZE/2 - cameraPos.y, BULLET_SIZE, BULLET_SIZE);
+            c.drawImage(b.img, 0, 0, b.img.width, b.img.height, b.pos.x-b.size/2 - cameraPos.x, b.pos.y-b.size/2 - cameraPos.y, b.size, b.size);
         }
     })
 }
