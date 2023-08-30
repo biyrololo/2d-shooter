@@ -3,7 +3,12 @@ const c = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const p = new Entity('Biker', SPAWN_POINT, '1', 1, true, 300);
+window.onresize = ()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 100);
 p.showReload = true;
 // const ent = new Entity('Biker', {x: 1000, y: 200})
 // ent.setDirection('left');
@@ -60,7 +65,7 @@ function animate(){
 function spawnEnemies(){
     ENEMY_SPAWN_BLOCKS.forEach(block=>{
         let gun = Object.keys(GUNS)[block.type * 2 + (Math.random()>=0.5?1:0)]
-        console.log(gun, block.type)
+        // console.log(gun, block.type)
         new Entity(
             'Biker',  //sprite name
             {x: block.x*TILE_SIZE - DRAWN_SIZE/2, y: block.y*TILE_SIZE-DRAWN_SIZE}, //spawn pos

@@ -92,15 +92,15 @@ document.addEventListener('click', ()=>{
     let handPos;
     if(p.dir === Directions.right){
         let translatePos = {
-            x: p.pos.x + 18*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2,
-            y: p.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*p.gunObj.offset
+            x: p.pos.x + HAND_POSES[p.charName].x*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2,
+            y: p.pos.y + (HAND_POSES[p.charName].y-2)*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*p.gunObj.offset
         };
         handPos = {x: translatePos.x + (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(Math.PI+p.handleAngle), y: translatePos.y + (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(p.handleAngle)};
     }
     if(p.dir === Directions.left){
         let translatePos = {
-            x: p.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE,
-            y: p.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*p.gunObj.offset,
+            x: p.pos.x + (SPRITE_SIZE-HAND_POSES[p.charName].x)*DRAWN_SIZE/SPRITE_SIZE,
+            y: p.pos.y + (HAND_POSES[p.charName].y-2)*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*p.gunObj.offset,
         }
         handPos = {x: translatePos.x - (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(p.handleAngle), y: translatePos.y + (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(p.handleAngle)};
     }

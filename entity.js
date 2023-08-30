@@ -9,6 +9,23 @@ HAND_SIZE = 11.5 * GLOBAS_SCALE * 1.5,
 GRAVITY = 10 * GLOBAS_SCALE
 ;
 // 16, 23
+
+const HAND_POSES = {
+    'Biker':{
+        x: 18,
+        y: 26
+    },
+    'Cyborg':{
+        x: 16,
+        y: 24
+    },
+    'Punk':{
+        x: 16,
+        y: 27,
+        jumpY: 23
+    }
+}
+
 const States = {
     idle: 'idle',
     run: 'run',
@@ -57,6 +74,7 @@ class Entity{
      */
     constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2, HD = false, maxHealth = 100){
         this.gunName = gun;
+        this.baseHealth = maxHealth;
         let hd = HD?'HD':'';
         this.spriteScale = HD ? 5.5: 1;
         this.startPos = structuredClone(startPos);
@@ -166,17 +184,17 @@ class Entity{
             this.state = States.jump; this._setAnimFramesPattern('fall');
         }
         
-        let translatePos = {};
+        let translatePos = {}, handY = this.isOnFloor?HAND_POSES[this.charName].y:HAND_POSES[this.charName].jumpY;;
         if(this.dir === Directions.right){
             translatePos = {
-                x: this.pos.x + 18*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2 - cameraPos.x,
-                y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y
+                x: this.pos.x + (HAND_POSES[this.charName].x)*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2 - cameraPos.x,
+                y: this.pos.y + handY*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y
             };
         }
         else{
             translatePos = {
-                x: this.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE- cameraPos.x,
-                y: this.pos.y + 26*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y,
+                x: this.pos.x + (SPRITE_SIZE-(HAND_POSES[this.charName].x))*DRAWN_SIZE/SPRITE_SIZE- cameraPos.x,
+                y: this.pos.y + handY*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y,
             };
             
         }
@@ -333,6 +351,10 @@ class Entity{
             this.isJump = false;
             // this.pos.y += this.jumpVelocity / this.jumpDuration.max;
         }
+        else if(entitiesCollision(this)){
+            this.isJump = false;
+            this.pos.y += 2;
+        }
     }
 
     /**
@@ -380,22 +402,22 @@ class Entity{
     _shot(){
         let randomShift = (Math.random()-0.5)*2;
         if(Math.random() > 0.7) randomShift =  0;
-        let handPos;
+        let handPos, handY = this.isOnFloor?HAND_POSES[this.charName].y:HAND_POSES[this.charName].jumpY;
         if(this.compateDirection('right')){
                 let translatePos = {
-                    x: this.pos.x + 18*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2,
-                    y: this.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*this.gunObj.offset
+                    x: this.pos.x + (HAND_POSES[this.charName].x)*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE/2,
+                    y: this.pos.y + handY*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*this.gunObj.offset
                 };
                 handPos = {x: translatePos.x + (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(Math.PI+this.handleAngle), y: translatePos.y + (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(this.handleAngle)};
         }
         else{
             let translatePos = {
-                x: this.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE,
-                y: this.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*this.gunObj.offset,
+                x: this.pos.x + (SPRITE_SIZE-(HAND_POSES[this.charName].x))*DRAWN_SIZE/SPRITE_SIZE,
+                y: this.pos.y + handY*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*this.gunObj.offset,
             }
             handPos = {x: translatePos.x - (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(this.handleAngle), y: translatePos.y + (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(this.handleAngle)};
         }
-            bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage, handPos, handPos, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true, this.gunObj.bulletSize || 1, this.gunObj.maxDistScale || 1));
+            bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage*0.6, handPos, handPos, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true, this.gunObj.bulletSize || 1, this.gunObj.maxDistScale || 1));
         this.playShotEffect();
     }
 
@@ -545,10 +567,12 @@ class Entity{
         let box = this.getBox();
         if(this.team === 2){
             let dropPos = {x: box.x, y: box.y2-TILE_SIZE};
-            if(p.health < p.maxHealth*0.3 || Math.random() > 0.8)
-                new Drop({x: box.x, y: box.y2-TILE_SIZE}, 'health');
+            if(Object.keys(GUNS).indexOf(this.gunName)*50+p.baseHealth > p.maxHealth){
+                new Drop(dropPos, 'maxHealth');
+            } else if(p.health < p.maxHealth*0.3 || Math.random() > 0.8)
+                new Drop(dropPos, 'health');
             else if(Math.random() > 0.4 && Object.keys(GUNS).indexOf(this.gunName) > Object.keys(GUNS).indexOf(p.gunName))
-                new Drop({x: box.x, y: box.y2-TILE_SIZE}, 'gun', this.gunName);
+                new Drop(dropPos, 'gun', this.gunName);
         }
         collisionEntities.splice(collisionEntities.indexOf(this), 1);
     }

@@ -7,8 +7,8 @@ class Drop{
     /**
      * 
      * @param {{x: number, y: number}} pos
-     * @param  {'health' | 'gun'} type
-     * @param {'1'} gun 
+     * @param  {'health' | 'gun' | 'maxHealth'} type
+     * @param {'1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10'} gun 
      */
     constructor(pos, type, gun = null){
         this.size = TILE_SIZE;
@@ -37,6 +37,10 @@ class Drop{
             case 'gun':
                 c.drawImage(this.gunImg, 0, 0, this.gunImg.width, this.gunImg.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
                 break;
+            case 'maxHealth':
+                c.fillStyle = 'red';
+                c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
+            
         }
         
     }
@@ -48,6 +52,10 @@ class Drop{
                 break;
             case 'gun':
                 p.setGun(this.gunName);
+                break;
+            case 'maxHealth':
+                p.maxHealth+=50;
+                p.health = p.maxHealth;
                 break;
         }
         this._destroy();
