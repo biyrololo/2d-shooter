@@ -3,9 +3,16 @@ const c = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+console.log(isMobile)
+
 window.onresize = ()=>{
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    JOYSTICK_BOX.x= canvas.width*0.05,
+    JOYSTICK_BOX.y= canvas.height*0.7,
+    JOYSTICK_BOX.w= canvas.width*.3,
+    JOYSTICK_BOX.h= canvas.height*0.2
 }
 
 const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 100_000);
@@ -41,7 +48,8 @@ function animate(){
     // c.fillRect(box.x - cameraPos.x ,box.y - cameraPos.y, box.x2-box.x, box.y2 - box.y);
     collisionEntities.forEach(e=>e.update())
     BLOOD_EFFECTS.forEach(e=>e.draw())
-    drawCrosshair();
+    if(isMobile) drawMobileControl();
+    else drawCrosshair();
     ckeckIsPlayerDie();
     // let translatePos = {
     //     x: p.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE,

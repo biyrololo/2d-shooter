@@ -90,6 +90,9 @@ var keys_pressed = [], up = 0;
 
 document.addEventListener('click', ()=>{
     if(GAME_STATE.end || collisionEntities.indexOf(p) === -1 || p.reload !== 0) return
+    if(isMobile && isInInterval(JOYSTICK_BOX.x, mouse.x, JOYSTICK_BOX.x+JOYSTICK_BOX.w) && isInInterval(JOYSTICK_BOX.y, mouse.y, JOYSTICK_BOX.y+JOYSTICK_BOX.h)){
+        return
+    }
     let handPos;
     if(p.dir === Directions.right){
         let translatePos = {
