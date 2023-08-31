@@ -2424,5 +2424,5 @@ map.onload = ()=>{
 }
 
 // const MAP_DRAWN_WIDTH = window.innerWidth * GLOBAS_SCALE * 1.5;
-const MAP_DRAWN_WIDTH = map.width / 96 * DRAWN_SIZE/5 * 1.5 * GLOBAS_SCALE;
+const MAP_DRAWN_WIDTH = map.width / 96 * DRAWN_SIZE/5 * 1.5;
 

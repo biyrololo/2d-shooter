@@ -47,6 +47,7 @@ function pointCollision(bullet){
             if(collisionX && collisionY && colEntity.team !== bullet.team){
                 colEntity.health -= bullet.damage;
                 colEntity.attacked = true;
+                new Blood(point);
                 if(colEntity.health <= 0){
                     colEntity.destroy();
                 }

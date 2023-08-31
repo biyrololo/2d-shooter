@@ -8,13 +8,14 @@ window.onresize = ()=>{
     canvas.height = window.innerHeight;
 }
 
-const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 100);
+const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 100_000);
 p.showReload = true;
 // const ent = new Entity('Biker', {x: 1000, y: 200})
 // ent.setDirection('left');
 
-const crosshair = new Image();
+const crosshair = new Image(), crosshairJump = new Image();
 crosshair.src = `images/Crosshair.png`;
+crosshairJump.src = `images/CrosshairJump.png`;
 
 const background = new Image();
 background.src = `images/BG.png`;
@@ -35,7 +36,11 @@ function animate(){
     // c.fillRect(canvas.width*0.35, canvas.height*0.3, canvas.width*0.3, canvas.height*0.5)
     updatePlayerDir();
     updateBullets();
+    // let box = p.getBox();
+    // c.fillStyle = 'green';
+    // c.fillRect(box.x - cameraPos.x ,box.y - cameraPos.y, box.x2-box.x, box.y2 - box.y);
     collisionEntities.forEach(e=>e.update())
+    BLOOD_EFFECTS.forEach(e=>e.draw())
     drawCrosshair();
     ckeckIsPlayerDie();
     // let translatePos = {
@@ -72,11 +77,11 @@ function spawnEnemies(){
             gun, //gun name
             2, //team
             true, //hd 
-            100+50*block.type //макс хп
+            70+50*block.type //макс хп
         )
     })
 }
 
 function drawCrosshair(size = 50 * GLOBAS_SCALE){
-    c.drawImage(crosshair, 0, 0, crosshair.width, crosshair.height, mouse.x - size/2, mouse.y - size/2, size, size);
+    c.drawImage(p.isOnFloor?crosshair:crosshairJump, 0, 0, crosshair.width, crosshair.height, mouse.x - size/2, mouse.y - size/2, size, size);
 }

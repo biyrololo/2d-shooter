@@ -30,6 +30,7 @@ function startFromPoint(point){
 
 function startGame(){
     p.health = p.maxHealth;
+    BLOOD_EFFECTS.splice(0, BLOOD_EFFECTS.length);
     collisionEntities.splice(0, collisionEntities.length);
     p.setPos(SPAWN_POINT);
     collisionEntities.push(p);

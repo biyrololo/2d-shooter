@@ -14,11 +14,15 @@ class Drop{
         this.size = TILE_SIZE;
         this.pos = pos;
         this.type = type;
+        this.image = new Image();
         if(type === 'gun' && gun){
             this.gunName = gun;
             this.gun = getGun(gun);
-            this.gunImg = new Image();
-            this.gunImg.src = `images/2 Guns/${this.gun.srcHD.right}`;
+            this.image.src = `images/2 Guns/${this.gun.srcHD.right}`;
+        } else if(type === 'health'){
+            this.image.src = 'images/health.png';
+        } else if(type === 'maxHealth'){
+            this.image.src = 'images/maxHealth.png';
         }
         drops.push(this);
     }
@@ -29,19 +33,20 @@ class Drop{
     }
 
     _draw(){
-        switch (this.type){
-            case 'health':
-                c.fillStyle = 'pink';
-                c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
-                break;
-            case 'gun':
-                c.drawImage(this.gunImg, 0, 0, this.gunImg.width, this.gunImg.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
-                break;
-            case 'maxHealth':
-                c.fillStyle = 'red';
-                c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
+        c.drawImage(this.image, 0, 0, this.image.width, this.image.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y - (this.image.height/this.image.width - 1) * this.size, this.size, this.size*this.image.height/this.image.width)
+        // switch (this.type){
+        //     case 'health':
+        //         c.fillStyle = 'pink';
+        //         c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
+        //         break;
+        //     case 'gun':
+        //         c.drawImage(this.gunImg, 0, 0, this.gunImg.width, this.gunImg.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
+        //         break;
+        //     case 'maxHealth':
+        //         c.fillStyle = 'red';
+        //         c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
             
-        }
+        // }
         
     }
 

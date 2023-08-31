@@ -21,18 +21,22 @@ class Bullet{
     constructor(name, speed, damage, start_point, end_point, team, angle = undefined, HD = false, size = 1, maxDistScale = 1){
         let hd = HD?'HD':'';
         this.damage = damage;
-        this.basicSpeed = speed;
+        this.basicSpeed = speed * GLOBAS_SCALE;
         this.img = new Image();
         this.img.src = `images/5 Bullets/${name}${hd}.png`;
-        if(angle == undefined)
-        this.angle = Math.atan((end_point.y - start_point.y)/(end_point.x - start_point.x));
-        else this.angle = angle;
+        if(angle == undefined){
+            this.angle = Math.atan((end_point.y - start_point.y)/(end_point.x - start_point.x));
+            if(!p.isOnFloor){
+                let randomShift = (Math.random()-0.5)*2;
+                this.angle+=randomShift*Math.PI/15;
+            }
+        } else this.angle = angle;
         if(end_point.x < start_point.x)
             this.angle+=Math.PI;
         this.pos = {...start_point};
         this.linearSpeed = {
-            x: speed*Math.cos(this.angle),
-            y: speed*Math.sin(this.angle)
+            x: this.basicSpeed*Math.cos(this.angle),
+            y: this.basicSpeed*Math.sin(this.angle)
         };
         this.dist = 0;
         this.team = team;

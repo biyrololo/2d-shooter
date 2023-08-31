@@ -117,6 +117,10 @@ class Entity{
         // this.imagesLeft.run.src = `${IMAGES_SRC}${charName}/Run1Left${hd}.png`;
         this.imagesLeft.walk = new Image();
         this.imagesLeft.walk.src = `${IMAGES_SRC}${charName}/Walk1Left${hd}.png`;
+        // if(team === 1){
+        //     this.images.walk.src = `${IMAGES_SRC}${charName}/Run1${hd}.png`;
+        //     this.imagesLeft.walk.src = `${IMAGES_SRC}${charName}/Run1Left${hd}.png`;
+        // }
         this.pos = {x: 0, y: 0};
         this.setPos(startPos);
         this.state = States.idle;
@@ -353,7 +357,7 @@ class Entity{
         }
         else if(entitiesCollision(this)){
             this.isJump = false;
-            this.pos.y += 2;
+            this.pos.y += 2 * GLOBAS_SCALE;
         }
     }
 
@@ -567,12 +571,12 @@ class Entity{
         let box = this.getBox();
         if(this.team === 2){
             let dropPos = {x: box.x, y: box.y2-TILE_SIZE};
-            if(Object.keys(GUNS).indexOf(this.gunName)*50+p.baseHealth > p.maxHealth){
+            if(Math.random() > 0.4 && Object.keys(GUNS).indexOf(this.gunName) > Object.keys(GUNS).indexOf(p.gunName))
+                    new Drop(dropPos, 'gun', this.gunName);
+            else if(Object.keys(GUNS).indexOf(this.gunName)*50+p.baseHealth > p.maxHealth){
                 new Drop(dropPos, 'maxHealth');
             } else if(p.health < p.maxHealth*0.3 || Math.random() > 0.8)
                 new Drop(dropPos, 'health');
-            else if(Math.random() > 0.4 && Object.keys(GUNS).indexOf(this.gunName) > Object.keys(GUNS).indexOf(p.gunName))
-                new Drop(dropPos, 'gun', this.gunName);
         }
         collisionEntities.splice(collisionEntities.indexOf(this), 1);
     }
