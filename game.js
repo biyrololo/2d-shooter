@@ -1,19 +1,26 @@
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
+
+function openFullscreen(element) {
+    if (element.requestFullscreen) {
+      element.requestFullscreen();
+    } else if (element.mozRequestFullScreen) { // Для Firefox
+      element.mozRequestFullScreen();
+    } else if (element.webkitRequestFullscreen) { // Для Chrome, Safari и Opera
+      element.webkitRequestFullscreen();
+    } else if (element.msRequestFullscreen) { // Для Internet Explorer и Edge
+      element.msRequestFullscreen();
+    }
+  }
+
+canvas.addEventListener('click', () => {
+openFullscreen(canvas);
+});
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 console.log(isMobile)
-
-window.onresize = ()=>{
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    JOYSTICK_BOX.x= canvas.width*0.05,
-    JOYSTICK_BOX.y= canvas.height*0.7,
-    JOYSTICK_BOX.w= canvas.width*.3,
-    JOYSTICK_BOX.h= canvas.height*0.2
-}
 
 const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 100_000);
 p.showReload = true;
@@ -41,7 +48,8 @@ function animate(){
     })
     // c.fillStyle = 'green';
     // c.fillRect(canvas.width*0.35, canvas.height*0.3, canvas.width*0.3, canvas.height*0.5)
-    updatePlayerDir();
+    if(isMobile) updatePlayerDirMobile();
+    else updatePlayerDir();
     updateBullets();
     // let box = p.getBox();
     // c.fillStyle = 'green';

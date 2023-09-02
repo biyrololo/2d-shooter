@@ -1,4 +1,4 @@
-const GLOBAS_SCALE = 1;
+const GLOBAS_SCALE = 0.75;
 const GAME_STATE = {end: false, pause: false};
 const cameraPos = {
     x: 0,
