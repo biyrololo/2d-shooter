@@ -1,5 +1,6 @@
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
+document.querySelector('button').onclick=firstStart;
 
 function openFullscreen(element) {
     if (element.requestFullscreen) {
@@ -35,7 +36,12 @@ const background = new Image();
 background.src = `images/BG.png`;
 
 function animate(){
-    c.fillStyle='gray';
+    if(GAME_STATE === GAME_STATES.game) renderGame();
+    requestAnimationFrame(animate);
+}
+
+function renderGame(){
+  c.fillStyle='gray';
     c.fillRect(0, 0, canvas.width, canvas.height);
     c.drawImage(background, 0, 0, background.width, background.height, 0, 0, canvas.width, canvas.height);
     updateCameraPos();
@@ -77,7 +83,6 @@ function animate(){
     //     c.fillRect(block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - cameraPos.y, 1*TILE_SIZE, 1*TILE_SIZE);
     // })
     // entitiesCollision(p);
-    requestAnimationFrame(animate);
 }
 
 // animate();
@@ -85,10 +90,12 @@ function animate(){
 
 function spawnEnemies(){
     ENEMY_SPAWN_BLOCKS.forEach(block=>{
-        let gun = Object.keys(GUNS)[block.type * 2 + (Math.random()>=0.5?1:0)]
+        let gun = Object.keys(GUNS)[block.type * 2 + (Math.random()>=0.5?1:0)];
+        let skin = 'Biker';
+        if(Math.random() > 0.5) skin='Cyborg';
         // console.log(gun, block.type)
         new Entity(
-            'Biker',  //sprite name
+            skin,  //sprite name
             {x: block.x*TILE_SIZE - DRAWN_SIZE/2, y: block.y*TILE_SIZE-DRAWN_SIZE}, //spawn pos
             gun, //gun name
             2, //team

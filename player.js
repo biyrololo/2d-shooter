@@ -28,7 +28,16 @@ function startFromPoint(point){
     drops.splice(0, drops.length);
 }
 
+function firstStart(){
+    document.body.style.cursor = 'none';
+    startGame();
+    animate();
+    document.querySelector('#menu').setAttribute('data-hide', 'true');
+    GAME_STATE = GAME_STATES.game;
+}
+
 function startGame(){
+    // openFullscreen(canvas);
     p.health = p.maxHealth;
     BLOOD_EFFECTS.splice(0, BLOOD_EFFECTS.length);
     collisionEntities.splice(0, collisionEntities.length);

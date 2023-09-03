@@ -1,5 +1,6 @@
 const GLOBAS_SCALE = 0.75;
-const GAME_STATE = {end: false, pause: false};
+const GAME_STATES = {menu: 0, game: 1};
+var GAME_STATE = GAME_STATES.menu;
 const cameraPos = {
     x: 0,
     y: 0

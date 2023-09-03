@@ -1,6 +1,6 @@
 const JOYSTICK_BOX = {
     x: canvas.width*0.05,
-    y: canvas.height*0.6,
+    y: canvas.height*0.7,
     w: canvas.width*.3,
     h: canvas.height*0.4
 }, JOYSTICK_POS = {x: (JOYSTICK_BOX.x*2+JOYSTICK_BOX.w)/2};
@@ -8,9 +8,9 @@ let isJoystickActive = false;
 
 const JUMP_BTN_BOX = {
     x: canvas.width*0.1,
-    y: canvas.height*0.35,
+    y: canvas.height*0.4,
     w: canvas.width*.2,
-    h: canvas.height*0.2
+    h: canvas.height*0.25
 }
 
 const ATTACK_JOYSTICK_BOX = {
@@ -28,14 +28,14 @@ let A_J_SIZE = canvas.height * 0.1, isAjActive = false;
 window.onresize = ()=>{
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    JOYSTICK_BOX.x= canvas.width*0.05,
+    JOYSTICK_BOX.x= canvas.width*0.0,
     JOYSTICK_BOX.y= canvas.height*0.7,
-    JOYSTICK_BOX.w= canvas.width*.3,
-    JOYSTICK_BOX.h= canvas.height*0.2;
+    JOYSTICK_BOX.w= canvas.width*.4,
+    JOYSTICK_BOX.h= canvas.height*0.3;
     JUMP_BTN_BOX.x = canvas.width*0.1;
-    JUMP_BTN_BOX.y  =canvas.height*0.35;
+    JUMP_BTN_BOX.y  =canvas.height*0.4;
     JUMP_BTN_BOX.w  =canvas.width*.2;
-    JUMP_BTN_BOX.h  =canvas.height*0.2;
+    JUMP_BTN_BOX.h  =canvas.height*0.3;
     ATTACK_JOYSTICK_BOX.x= canvas.width*0.95 - canvas.height*0.5;
     ATTACK_JOYSTICK_BOX.y= canvas.height*0.45;
     ATTACK_JOYSTICK_BOX.w= canvas.height*0.5;
@@ -97,6 +97,9 @@ canvas.addEventListener('touchmove', (event)=>{
             A_J_POS.x = touch.clientX - ATTACK_JOYSTICK_BOX.x;
             A_J_POS.y = touch.clientY - ATTACK_JOYSTICK_BOX.y;
             isAjActive=true;
+        }
+        if(checkControlCollision(JUMP_BTN_BOX, point)){
+            p.jump();
         }
     }
     if(!isJoystickActive){

@@ -2419,8 +2419,8 @@ MAP_LAYERS[5]['chunks'].forEach(block=>{
 map.src = `images/map.png`;
 map.onload = ()=>{
    LOAD_RESOURCES.map = true;
-   startGame();
-   animate();
+   // startGame();
+   // animate();
 }
 
 // const MAP_DRAWN_WIDTH = window.innerWidth * GLOBAS_SCALE * 1.5;
