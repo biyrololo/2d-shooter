@@ -79,7 +79,7 @@ class Entity{
         this.spriteScale = HD ? 5.5: 1;
         this.startPos = structuredClone(startPos);
         this.weight = 1;
-        this.jumpVelocity = DRAWN_SIZE * 2;
+        this.jumpVelocity = DRAWN_SIZE * 2.2;
         this.jumpDuration = {cur: 0, max: 12};
         this.maxHealth = maxHealth;
         this.health = this.maxHealth;

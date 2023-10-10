@@ -20,9 +20,6 @@ openFullscreen(canvas);
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const isMobile = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-console.log(isMobile)
-
 const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 100_000);
 p.showReload = true;
 // const ent = new Entity('Biker', {x: 1000, y: 200})

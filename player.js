@@ -31,7 +31,7 @@ function startFromPoint(point){
 function firstStart(){
     document.body.style.cursor = 'none';
     startGame();
-    animate();
+    // animate();
     document.querySelector('#menu').setAttribute('data-hide', 'true');
     GAME_STATE = GAME_STATES.game;
 }

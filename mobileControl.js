@@ -25,7 +25,7 @@ const ATTACK_JOYSTICK_BOX = {
 
 let A_J_SIZE = canvas.height * 0.1, isAjActive = false;
 
-window.onresize = ()=>{
+function resize(){
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     JOYSTICK_BOX.x= canvas.width*0.0,
@@ -43,6 +43,9 @@ window.onresize = ()=>{
     A_J_SIZE = canvas.height * 0.1;
 }
 
+window.addEventListener('load', resize);
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', resize);
 /**
  * 
  * @param {{x: number, y: number, w: number, h: number}} control 
