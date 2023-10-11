@@ -40,7 +40,7 @@ function firstStart(){
         let img = new Image();
         img.onload = ()=>{
             document.querySelector('#loading > div').style=`--s: ${Math.floor(i*100/sourcesCommon.length/3)}%`;
-            document.querySelector('#loading > a').textContent = s;
+            document.querySelector('#loading > a').textContent = `images/${s}`;
         }
         img.src = `images/${s}`;
     })
@@ -50,7 +50,7 @@ function firstStart(){
             
             img.onload = ()=>{
                 document.querySelector('#loading > div').style=`--s: ${Math.floor(i*100/sourcesHD.length/2+100/3)}%`;
-                document.querySelector('#loading > a').textContent = s;
+                document.querySelector('#loading > a').textContent = `images/${s}`;
             }
             img.src = `images/${s}`;
         })
@@ -61,7 +61,7 @@ function firstStart(){
             
             img.onload = ()=>{
                 document.querySelector('#loading > div').style=`--s: ${Math.floor(i*100/sourcesNonHd.length/2+100/3)}%`;
-                document.querySelector('#loading > a').textContent = s;
+                document.querySelector('#loading > a').textContent = `images/${s}`;
             }
             img.src = `images/${s}`;
         })

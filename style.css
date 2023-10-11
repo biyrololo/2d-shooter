@@ -32,14 +32,17 @@ div#menu{
 }
 
 div#menu button{
-    font-size: 8rem;
+    font-size: clamp(1rem, 5vw, 8rem);
     background-color: rgba(0,0,0,.5);
     border: none;
     color: white;
     min-width: 50vw;
-    height: 10rem;
     cursor: pointer;
     transition: all 0.5s;
+    padding: min(5vh, 2rem) 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 div#menu button:hover{
@@ -51,25 +54,16 @@ div#menu button:active{
 }
 
 div#menu #title{
-    font-size: clamp(5rem,10vw, 10rem);
+    font-size: min(10rem, 10vw);
     color: white;
     user-select: none;
     position: relative;
-}
-
-@media screen and (max-width: 1280px){
-
-    div#menu button{
-        font-size: 4rem;
-        height: 8rem;
-    }
 }
 
 div#menu span:first-child{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    height: 12rem;
 }
 
 #version{
@@ -101,7 +95,7 @@ div#menu span:first-child{
 }
 
 #menu > div > button:first-of-type{
-    margin-top: 3rem;
+    margin-top: min(5vh, 3rem);
 }
 
 div#loading > a{
@@ -131,8 +125,6 @@ div#loading > div::after{
 
 #set-hd{
     font-size: clamp(2rem,5vw, 4rem) !important;
-    height: auto !important;
-    padding: 20px 0;
 }
 
 #set-hd[data-hd="false"]{
@@ -141,4 +133,13 @@ div#loading > div::after{
 
 #loading[data-show="false"]{
     display: none;
+}
+
+@media screen and (max-width: 1000px) {
+    #menu > div{
+        gap: .5rem;
+    }
+    #menu > div > button:nth-child(2){
+        margin-top: .1rem;
+    }
 }
