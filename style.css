@@ -95,6 +95,38 @@ div#menu span:first-child{
 #menu > div{
     display: flex;
     flex-direction: column;
+    gap: 1rem;
+    position: relative;
+    overflow: auto;
+}
+
+#menu > div > button:first-of-type{
+    margin-top: 3rem;
+}
+
+div#loading > a{
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+}
+
+div#loading > a::before{
+    content: '...';
+}
+
+div#loading > div{
+    position: relative;
+    width: 100%;
+    height: 10px;
+    background: white;
+}
+
+div#loading > div::after{
+    content: '';
+    position: absolute;
+    width: var(--s);
+    height: 100%;
+    background: #E0187B;
+    transition: all 0.2s;
 }
 
 #set-hd{
@@ -105,4 +137,8 @@ div#menu span:first-child{
 
 #set-hd[data-hd="false"]{
     text-decoration: line-through;
+}
+
+#loading[data-show="false"]{
+    display: none;
 }

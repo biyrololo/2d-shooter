@@ -28,11 +28,48 @@ function startFromPoint(point){
     drops.splice(0, drops.length);
 }
 
+let firstStartDid = false;
+
 function firstStart(){
+    if(firstStartDid) return
+    firstStartDid = true;
     document.body.style.cursor = 'none';
     // startGame();
+    document.querySelector('#loading').setAttribute('data-show', 'true');
+    sourcesCommon.forEach((s, i)=>{
+        let img = new Image();
+        img.onload = ()=>{
+            document.querySelector('#loading > div').style=`--s: ${Math.floor(i*100/sourcesCommon.length/3)}%`;
+            document.querySelector('#loading > a').textContent = s;
+        }
+        img.src = `images/${s}`;
+    })
+    if(isHdTextures){
+        sourcesHD.forEach((s, i)=>{
+            let img = new Image();
+            
+            img.onload = ()=>{
+                document.querySelector('#loading > div').style=`--s: ${Math.floor(i*100/sourcesHD.length/2+100/3)}%`;
+                document.querySelector('#loading > a').textContent = s;
+            }
+            img.src = `images/${s}`;
+        })
+    }
+    if(!isHdTextures){
+        sourcesNonHd.forEach((s, i)=>{
+            let img = new Image();
+            
+            img.onload = ()=>{
+                document.querySelector('#loading > div').style=`--s: ${Math.floor(i*100/sourcesNonHd.length/2+100/3)}%`;
+                document.querySelector('#loading > a').textContent = s;
+            }
+            img.src = `images/${s}`;
+        })
+    }
+    document.querySelector('#loading > a').textContent = `images/mapNew${isHdTextures?'':'Low'}.png`;
     map.src = `images/mapNew${isHdTextures?'':'Low'}.png`;
     map.onload = () => {
+        document.querySelector('#loading > div').style=`--s: 100%`;
         MAP_DRAWN_WIDTH = map.width / 96 * DRAWN_SIZE/5 * 1.5 * 1.5 * (isHdTextures?1:4);
         GAME_STATE = GAME_STATES.game;
         startGame();
