@@ -20,7 +20,7 @@ openFullscreen(canvas);
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 100_000);
+const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 200);
 p.showReload = true;
 // const ent = new Entity('Biker', {x: 1000, y: 200})
 // ent.setDirection('left');
