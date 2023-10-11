@@ -30,10 +30,20 @@ function startFromPoint(point){
 
 function firstStart(){
     document.body.style.cursor = 'none';
-    startGame();
-    // animate();
-    document.querySelector('#menu').setAttribute('data-hide', 'true');
-    GAME_STATE = GAME_STATES.game;
+    // startGame();
+    map.src = `images/mapNew${isHdTextures?'':'Low'}.png`;
+    map.onload = () => {
+        MAP_DRAWN_WIDTH = map.width / 96 * DRAWN_SIZE/5 * 1.5 * 1.5 * (isHdTextures?1:4);
+        GAME_STATE = GAME_STATES.game;
+        startGame();
+        animate();
+        document.querySelector('#menu').setAttribute('data-hide', 'true');
+    };
+    
+    if (map.complete && map.naturalWidth !== 0) {
+        // Карта уже была загружена до установки onload
+        map.onload();
+    }
 }
 
 function startGame(){

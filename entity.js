@@ -197,7 +197,7 @@ class Entity{
         }
         else{
             translatePos = {
-                x: this.pos.x + (SPRITE_SIZE-(HAND_POSES[this.charName].x))*DRAWN_SIZE/SPRITE_SIZE- cameraPos.x,
+                x: this.pos.x + (SPRITE_SIZE-(HAND_POSES[this.charName].x))*DRAWN_SIZE/SPRITE_SIZE- cameraPos.x + OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE,
                 y: this.pos.y + handY*DRAWN_SIZE/SPRITE_SIZE - cameraPos.y,
             };
             
@@ -231,6 +231,9 @@ class Entity{
         }
         c.rotate(-this.handleAngle)
         c.translate(-translatePos.x, -translatePos.y);
+        // let box = this.getBox();
+        // c.fillStyle='rgba(255,0,0,.3)';
+        // c.fillRect(box.x - cameraPos.x, box.y - cameraPos.y, box.x2 - box.x, box.y2 - box.y)
         c.fillStyle= 'rgba(104, 32, 32, .6)';
         c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         c.fillStyle= '#CC3F3F';
@@ -247,7 +250,7 @@ class Entity{
             c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
         else{
-            c.drawImage(this.imagesLeft[this.state], ((this.state === States.walk?5 : 3) - this.curFrame) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
+            c.drawImage(this.imagesLeft[this.state], ((this.state === States.walk?5 : 3) - this.curFrame) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x + OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
     }
 
@@ -311,7 +314,7 @@ class Entity{
      */
     getBox(){
         let thisBox = {x: 0, y: 0, x2: 0, y2: 0};
-        if(this.dir === Directions.right){
+        if(this.dir === Directions.right || 1){
             thisBox.x = this.pos.x + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE;
             thisBox.y = this.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE;
             thisBox.x2 = this.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE;

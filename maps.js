@@ -2724,13 +2724,13 @@ MAP_LAYERS[5]['chunks'].forEach(block=>{
    })
 })
 
-map.src = `images/mapNew.png`;
-map.onload = ()=>{
-   LOAD_RESOURCES.map = true;
-   // startGame();
-   animate();
-}
+// map.src = `images/mapNew.png`;
+// map.onload = ()=>{
+//    LOAD_RESOURCES.map = true;
+//    // startGame();
+//    animate();
+// }
 
 // const MAP_DRAWN_WIDTH = window.innerWidth * GLOBAS_SCALE * 1.5;
-const MAP_DRAWN_WIDTH = map.width / 96 * DRAWN_SIZE/5 * 1.5 * 1.5;
+let MAP_DRAWN_WIDTH = map.width / 96 * DRAWN_SIZE/5 * 1.5 * 1.5;
 

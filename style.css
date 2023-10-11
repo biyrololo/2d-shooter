@@ -51,16 +51,13 @@ div#menu button:active{
 }
 
 div#menu #title{
-    font-size: 10rem;
+    font-size: clamp(5rem,10vw, 10rem);
     color: white;
     user-select: none;
     position: relative;
 }
 
 @media screen and (max-width: 1280px){
-    div#menu #title{
-        font-size: 5rem;
-    }
 
     div#menu button{
         font-size: 4rem;
@@ -93,4 +90,19 @@ div#menu span:first-child{
     100%{
         top: -101vh;
     }
+}
+
+#menu > div{
+    display: flex;
+    flex-direction: column;
+}
+
+#set-hd{
+    font-size: clamp(2rem,5vw, 4rem) !important;
+    height: auto !important;
+    padding: 20px 0;
+}
+
+#set-hd[data-hd="false"]{
+    text-decoration: line-through;
 }

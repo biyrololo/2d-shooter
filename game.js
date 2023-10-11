@@ -2,6 +2,13 @@ const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 document.querySelector('button').onclick=firstStart;
 
+const setHdButton = document.querySelector('#set-hd');
+
+setHdButton.addEventListener('click', ()=>{
+  isHdTextures = !isHdTextures;
+  setHdButton.setAttribute('data-hd', isHdTextures?'true':'false')
+})
+
 function openFullscreen(element) {
     if (element.requestFullscreen) {
       element.requestFullscreen();
@@ -20,7 +27,7 @@ openFullscreen(canvas);
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 100_000);
+const p = new Entity('Punk', SPAWN_POINT, '1', 1, true, 200);
 p.showReload = true;
 // const ent = new Entity('Biker', {x: 1000, y: 200})
 // ent.setDirection('left');
@@ -96,7 +103,7 @@ function spawnEnemies(){
             {x: block.x*TILE_SIZE - DRAWN_SIZE/2, y: block.y*TILE_SIZE-DRAWN_SIZE}, //spawn pos
             gun, //gun name
             2, //team
-            true, //hd 
+            isHdTextures, //hd 
             70+50*block.type //макс хп
         )
     })
