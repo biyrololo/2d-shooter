@@ -92,6 +92,9 @@ function startGame(){
     collisionEntities.push(p);
     spawnEnemies();
     drops.splice(0, drops.length);
+    DROP_BLOCKS.forEach(d=>{
+        new Drop({x: d.x * TILE_SIZE, y: d.y * TILE_SIZE}, 'gun', String(d.type === 1? 2: d.type));
+    })
     cameraPos.y = p.pos.y + DRAWN_SIZE - canvas.height * 0.8;
     p.reload = 0;
 }

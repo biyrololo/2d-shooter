@@ -574,7 +574,7 @@ class Entity{
         let box = this.getBox();
         if(this.team === 2){
             let dropPos = {x: box.x, y: box.y2-TILE_SIZE};
-            if(Math.random() > 0.4 && Object.keys(GUNS).indexOf(this.gunName) > Object.keys(GUNS).indexOf(p.gunName))
+            if(Math.random() > 0.7 && Object.keys(GUNS).indexOf(this.gunName) > Object.keys(GUNS).indexOf(p.gunName))
                     new Drop(dropPos, 'gun', this.gunName);
             else if(Object.keys(GUNS).indexOf(this.gunName)*50+p.baseHealth > p.maxHealth){
                 new Drop(dropPos, 'maxHealth');

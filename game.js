@@ -49,7 +49,7 @@ function renderGame(){
     c.fillRect(0, 0, canvas.width, canvas.height);
     c.drawImage(background, 0, 0, background.width, background.height, 0, 0, canvas.width, canvas.height);
     updateCameraPos();
-    c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
+    c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y - 16 * TILE_SIZE, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
     CHECKPOINTS_BLOCKS.forEach(checkpoint=>{
         checkpoint.update();
     })
@@ -82,7 +82,7 @@ function renderGame(){
     //     let handPos = {x: p.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*3*Math.sin(Math.PI+p.handleAngle), y: p.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*3*Math.cos(p.handleAngle)};
     //     c.fillRect(handPos.x - 5 - cameraPos.x,handPos.y - cameraPos.y - 5, 10, 10)
     // }
-    // // c.fillStyle = 'red'
+    // c.fillStyle = 'red'
     // COLLISION_BLOCKS.forEach(block=>{
     //     c.fillRect(block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - cameraPos.y, 1*TILE_SIZE, 1*TILE_SIZE);
     // })
