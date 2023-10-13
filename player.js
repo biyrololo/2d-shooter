@@ -1,4 +1,8 @@
 const mouse = {x: 0, y: 0};
+const PLAYER_BOOTS = {
+    speed: 1,
+    damage: 1
+};
 
 function setMouse(event){
     event =event || window.event;
@@ -93,7 +97,12 @@ function startGame(){
     spawnEnemies();
     drops.splice(0, drops.length);
     DROP_BLOCKS.forEach(d=>{
-        new Drop({x: d.x * TILE_SIZE, y: d.y * TILE_SIZE}, 'gun', String(d.type === 1? 2: d.type));
+        if(d.dropType === 'gun')
+            new Drop({x: d.x * TILE_SIZE, y: d.y * TILE_SIZE}, 'gun', String(d.type === 1? 2: d.type*2));
+        if(d.dropType === 'speed')
+            new Drop({x: d.x * TILE_SIZE, y: d.y * TILE_SIZE}, 'speed');
+        if(d.dropType === 'damage')
+            new Drop({x: d.x * TILE_SIZE, y: d.y * TILE_SIZE}, 'damage');
     })
     cameraPos.y = p.pos.y + DRAWN_SIZE - canvas.height * 0.8;
     p.reload = 0;
@@ -164,7 +173,7 @@ document.addEventListener('click', ()=>{
         }
         handPos = {x: translatePos.x - (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(p.handleAngle), y: translatePos.y + (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(p.handleAngle)};
     }
-    bullets.push(new Bullet(p.gunObj.bullet, p.gunObj.bulletSpeed, p.gunObj.baseDamage, handPos, {x: mouse.x + cameraPos.x, y: mouse.y + cameraPos.y}, 1, undefined, true, (p.gunObj.bulletSize || 1), p.gunObj.maxDistScale || 1));
+    bullets.push(new Bullet(p.gunObj.bullet, p.gunObj.bulletSpeed, p.gunObj.baseDamage * PLAYER_BOOTS.damage, handPos, {x: mouse.x + cameraPos.x, y: mouse.y + cameraPos.y}, 1, undefined, true, (p.gunObj.bulletSize || 1), p.gunObj.maxDistScale || 1));
     p.reload = p.gunObj.reloadMax;
     p.playShotEffect();
 })

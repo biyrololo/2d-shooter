@@ -7,7 +7,7 @@ class Drop{
     /**
      * 
      * @param {{x: number, y: number}} pos
-     * @param  {'health' | 'gun' | 'maxHealth'} type
+     * @param  {'health' | 'gun' | 'maxHealth' | 'speed' | 'damage'} type
      * @param {'1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10'} gun 
      */
     constructor(pos, type, gun = null){
@@ -23,6 +23,10 @@ class Drop{
             this.image.src = 'images/health.png';
         } else if(type === 'maxHealth'){
             this.image.src = 'images/maxHealth.png';
+        } else if(type === 'speed'){
+            this.image.src = 'images/speed.png';
+        } else if(type === 'damage'){
+            this.image.src = 'images/damage.png';
         }
         drops.push(this);
     }
@@ -61,6 +65,14 @@ class Drop{
             case 'maxHealth':
                 p.maxHealth+=50;
                 p.health = p.maxHealth;
+                break;
+            case 'speed':
+                DROP_BLOCKS.splice(DROP_BLOCKS.findIndex(d=>d.x === Math.floor(this.pos.x/TILE_SIZE) && d.y === Math.floor(this.pos.y/TILE_SIZE) && d.dropType === 'speed'), 1);
+                PLAYER_BOOTS.speed*=1.1;
+                break;
+            case 'damage':
+                DROP_BLOCKS.splice(DROP_BLOCKS.findIndex(d=>d.x === Math.floor(this.pos.x/TILE_SIZE) && d.y === Math.floor(this.pos.y/TILE_SIZE) && d.dropType === 'damage'), 1);
+                PLAYER_BOOTS.damage*=1.2;
                 break;
         }
         this._destroy();

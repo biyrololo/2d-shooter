@@ -68,7 +68,7 @@ class Entity{
      * @param {'Biker' | 'Cyborg' | 'Punk'} charName character name; имя entity
      * @param {{x: number, y: number}} startPos start pos; стартовая позиция
      * @param {String} [gun='1'] gun name; название оружия
-     * @param {number} [team=2] team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
+     * @param {1 | 2} [team=2] team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
      * @param {Boolean} HD HD текстуры
      * @param {number} maxHealth макс хп
      */
@@ -210,6 +210,7 @@ class Entity{
         c.rotate(this.handleAngle);
         // c.fillStyle ='red';
         // c.fillRect(-5, 0, 10, 70);
+        if(this.team === 1) c.filter = `hue-rotate(-${(PLAYER_BOOTS.damage + PLAYER_BOOTS.speed - 2)*30}deg)`;
         if(this.dir === Directions.right){
             c.drawImage(this.hand, 0, 0, this.hand.width, this.hand.height, -HAND_SIZE/2, 0, HAND_SIZE, this.hand.height / this.hand.width * HAND_SIZE);
             c.drawImage(this.gun, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 + 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
@@ -229,6 +230,7 @@ class Entity{
             }
             
         }
+        c.filter = "none";
         c.rotate(-this.handleAngle)
         c.translate(-translatePos.x, -translatePos.y);
         // let box = this.getBox();
@@ -246,12 +248,14 @@ class Entity{
             c.fillStyle= '#ffca1c';
             c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/5, DRAWN_SIZE/2 * ((this.gunObj.reloadMax - this.reload))/(this.gunObj.reloadMax), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         }
+        if(this.team === 1) c.filter = `hue-rotate(-${(PLAYER_BOOTS.damage + PLAYER_BOOTS.speed - 2)*30}deg)`;
         if(this.dir === Directions.right){
             c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
         else{
             c.drawImage(this.imagesLeft[this.state], ((this.state === States.walk?5 : 3) - this.curFrame) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x + OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
+        c.filter = "none";
     }
 
     /**
@@ -297,10 +301,12 @@ class Entity{
      * @returns {Boolean} врезался при движении или нет
      */
     move(x = 0){
+        let scale = 1;
+        if(this.team === 1) scale = PLAYER_BOOTS.speed;
         let res = false;
-        this.pos.x+=x*this.speed*GLOBAS_SCALE;
+        this.pos.x+=x*this.speed*GLOBAS_SCALE*scale;
         if(entitiesCollision(this) || fullCollWithMap(this)){
-            this.pos.x-=x*this.speed*GLOBAS_SCALE;
+            this.pos.x-=x*this.speed*GLOBAS_SCALE*scale;
             res = true;
         }
         this.isMove = true;
