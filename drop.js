@@ -31,6 +31,9 @@ class Drop{
         drops.push(this);
     }
 
+    /**
+     * обновляет состояние + отрисовка
+     */
     update(){
         this._draw();
         this._checkPlayerCollision();
@@ -38,20 +41,6 @@ class Drop{
 
     _draw(){
         c.drawImage(this.image, 0, 0, this.image.width, this.image.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y - (this.image.height/this.image.width - 1) * this.size, this.size, this.size*this.image.height/this.image.width)
-        // switch (this.type){
-        //     case 'health':
-        //         c.fillStyle = 'pink';
-        //         c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
-        //         break;
-        //     case 'gun':
-        //         c.drawImage(this.gunImg, 0, 0, this.gunImg.width, this.gunImg.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
-        //         break;
-        //     case 'maxHealth':
-        //         c.fillStyle = 'red';
-        //         c.fillRect(this.pos.x - cameraPos.x, this.pos.y - cameraPos.y, this.size, this.size);
-            
-        // }
-        
     }
 
     _onPlayerCollision(){
