@@ -248,7 +248,56 @@ class Entity{
             c.fillStyle= '#ffca1c';
             c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/5, DRAWN_SIZE/2 * ((this.gunObj.reloadMax - this.reload))/(this.gunObj.reloadMax), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         }
-        if(this.team === 1) c.filter = `hue-rotate(-${(PLAYER_BOOTS.damage + PLAYER_BOOTS.speed - 2)*30}deg)`;
+        if(this.team === 1) {
+            if(PLAYER_BOOTS.damageTime.cur > 0){
+                c.fillStyle= 'rgba(182, 53, 151, .5)';
+                c.fillRect(
+                    this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
+                    this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6, 
+                    DRAWN_SIZE/2, 
+                    1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
+                    );
+                c.fillStyle= '#B63597';
+                c.fillRect(
+                    this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
+                    this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6, 
+                    DRAWN_SIZE/2 * PLAYER_BOOTS.damageTime.cur/PLAYER_BOOTS.damageTime.max, 
+                    1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
+                    );
+                if(PLAYER_BOOTS.speedTime.cur > 0){
+                    c.fillStyle= 'rgba(89, 182, 53, .5)';
+                    c.fillRect(
+                        this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
+                        this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/20, 
+                        DRAWN_SIZE/2, 
+                        1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
+                        );
+                    c.fillStyle= '#59B635';
+                    c.fillRect(
+                        this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
+                        this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/20, 
+                        DRAWN_SIZE/2 * PLAYER_BOOTS.speedTime.cur/PLAYER_BOOTS.speedTime.max, 
+                        1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
+                        );
+                }
+            } else if(PLAYER_BOOTS.speedTime.cur > 0){
+                c.fillStyle= 'rgba(89, 182, 53, .5)';
+                c.fillRect(
+                    this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
+                    this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6, 
+                    DRAWN_SIZE/2, 
+                    1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
+                    );
+                c.fillStyle= '#59B635';
+                c.fillRect(
+                    this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
+                    this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6, 
+                    DRAWN_SIZE/2 * PLAYER_BOOTS.speedTime.cur/PLAYER_BOOTS.speedTime.max, 
+                    1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
+                    );
+            }
+            c.filter = `hue-rotate(-${(PLAYER_BOOTS.damage + PLAYER_BOOTS.speed - 2)*30}deg)`;
+        }
         if(this.dir === Directions.right){
             c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
@@ -286,12 +335,20 @@ class Entity{
     updateAnim(){
         this.counter.cur++;
         if(this.counter.cur % this.counter.fq === 0){
+            if(this.team === 1) this._updatePlayerStates();
             this.curFrame++;
             this.shotEffectFrame.curFrame++;
             if(this.shotEffectFrame.curFrame > this.shotEffectFrame.max) this.shotEffectFrame.play = false;
             if(this.curFrame > 3) this.curFrame = 0;
         }
         if(this.reload > 0) {this.reload--; if(this.reload < 0) this.reload = 0;}
+    }
+
+    _updatePlayerStates(){
+        if(PLAYER_BOOTS.damageTime.cur > 0) PLAYER_BOOTS.damageTime.cur--;
+        if(PLAYER_BOOTS.speedTime.cur > 0) PLAYER_BOOTS.speedTime.cur--;
+        if(PLAYER_BOOTS.damageTime.cur === 0) PLAYER_BOOTS.damage = 1;
+        if(PLAYER_BOOTS.speedTime.cur === 0) PLAYER_BOOTS.speed = 1;
     }
 
     /**
@@ -583,8 +640,12 @@ class Entity{
             if(Math.random() > 0.7 && Object.keys(GUNS).indexOf(this.gunName) > Object.keys(GUNS).indexOf(p.gunName))
                     new Drop(dropPos, 'gun', this.gunName);
             else if(Object.keys(GUNS).indexOf(this.gunName)*50+p.baseHealth > p.maxHealth){
-                new Drop(dropPos, 'maxHealth');
-            } else if(p.health < p.maxHealth*0.3 || Math.random() > 0.8)
+                new Drop(dropPos, 'maxHealth'); }
+            else if(Math.random() > 0.5)
+                new Drop(dropPos, 'damage');
+            else if(Math.random() > 0.5)
+                new Drop(dropPos, 'speed');
+            else if(p.health < p.maxHealth*0.3 || Math.random() > 0.8)
                 new Drop(dropPos, 'health');
         }
         collisionEntities.splice(collisionEntities.indexOf(this), 1);

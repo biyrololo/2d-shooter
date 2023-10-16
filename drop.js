@@ -56,12 +56,12 @@ class Drop{
                 p.health = p.maxHealth;
                 break;
             case 'speed':
-                DROP_BLOCKS.splice(DROP_BLOCKS.findIndex(d=>d.x === Math.floor(this.pos.x/TILE_SIZE) && d.y === Math.floor(this.pos.y/TILE_SIZE) && d.dropType === 'speed'), 1);
-                PLAYER_BOOTS.speed*=1.1;
+                PLAYER_BOOTS.speed=1.2;
+                PLAYER_BOOTS.speedTime.cur = PLAYER_BOOTS.speedTime.max;
                 break;
             case 'damage':
-                DROP_BLOCKS.splice(DROP_BLOCKS.findIndex(d=>d.x === Math.floor(this.pos.x/TILE_SIZE) && d.y === Math.floor(this.pos.y/TILE_SIZE) && d.dropType === 'damage'), 1);
-                PLAYER_BOOTS.damage*=1.2;
+                PLAYER_BOOTS.damage=1.5;
+                PLAYER_BOOTS.damageTime.cur = PLAYER_BOOTS.damageTime.max;
                 break;
         }
         this._destroy();

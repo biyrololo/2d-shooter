@@ -1,7 +1,9 @@
 const mouse = {x: 0, y: 0};
 const PLAYER_BOOTS = {
-    speed: 1,
-    damage: 1
+    speed: 1.2,
+    damage: 1.5,
+    speedTime: {cur: 20, max: 200},
+    damageTime: {cur: 20, max: 200},
 };
 
 function setMouse(event){
