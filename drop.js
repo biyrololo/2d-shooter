@@ -7,7 +7,7 @@ class Drop{
     /**
      * 
      * @param {{x: number, y: number}} pos
-     * @param  {'health' | 'gun' | 'maxHealth' | 'speed' | 'damage'} type
+     * @param  {'health' | 'gun' | 'maxHealth' | 'speed' | 'damage' | 'shield'} type
      * @param {'1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10'} gun 
      */
     constructor(pos, type, gun = null){
@@ -27,6 +27,8 @@ class Drop{
             this.image.src = 'images/speed.png';
         } else if(type === 'damage'){
             this.image.src = 'images/damage.png';
+        } else if(type === 'shield'){
+            this.image.src = 'images/shieldDrop.png';
         }
         drops.push(this);
     }
@@ -62,6 +64,10 @@ class Drop{
             case 'damage':
                 PLAYER_BOOTS.damage=1.5;
                 PLAYER_BOOTS.damageTime.cur = PLAYER_BOOTS.damageTime.max;
+                break;
+            case 'shield':
+                p.shieldAnim.isActive = true;
+                PLAYER_BOOTS.shieldTime.cur = PLAYER_BOOTS.shieldTime.max;
                 break;
         }
         this._destroy();

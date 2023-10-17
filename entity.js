@@ -71,8 +71,9 @@ class Entity{
      * @param {1 | 2} [team=2] team: 1 - player, 2 - enemies; команда: 1 - игрок, 2 - противники
      * @param {Boolean} HD HD текстуры
      * @param {number} maxHealth макс хп
+     * @param {Boolean} isShield есть ли щит
      */
-    constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2, HD = false, maxHealth = 100){
+    constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2, HD = false, maxHealth = 100, isShield = false){
         this.gunName = gun;
         this.baseHealth = maxHealth;
         let hd = HD?'HD':'';
@@ -83,6 +84,20 @@ class Entity{
         this.jumpDuration = {cur: 0, max: 12};
         this.maxHealth = maxHealth;
         this.health = this.maxHealth;
+        if(team === 2 && isShield) {this.health*=1.5;}
+        /**
+         * щит
+         */
+        this.shield = new Image();
+        this.shield.src = `images/shield.png`;
+        /**
+         * Анимация щита
+         */
+        this.shieldAnim = {
+            isActive: isShield,
+            value: 0,
+            max: 50
+        }
         /**
          * 
          * @type {{src: {right: string, left: string}, srcHD: {right: string, left: string}, reloadMax: number, baseDamage: number, bullet: string, shotEffect: string, bulletSpeed: number, offset: number, maxDistScale?: number, bulletSize?: number}}
@@ -239,7 +254,7 @@ class Entity{
         c.fillStyle= 'rgba(104, 32, 32, .6)';
         c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         c.fillStyle= '#CC3F3F';
-        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * ((this.shieldAnim.isActive && this.team === 2) ? 1 : (this.health > 0?this.health / this.maxHealth : 0)), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         // c.drawImage(HEALTH_BAR.empty, 0, 0, HEALTH_BAR.empty.width, HEALTH_BAR.empty.height, this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         // c.drawImage(HEALTH_BAR.filled, 0, 0, HEALTH_BAR.empty.width*(this.health > 0?this.health / this.maxHealth : 0), HEALTH_BAR.empty.height, this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         if(this.showReload){
@@ -249,53 +264,29 @@ class Entity{
             c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/5, DRAWN_SIZE/2 * ((this.gunObj.reloadMax - this.reload))/(this.gunObj.reloadMax), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         }
         if(this.team === 1) {
-            if(PLAYER_BOOTS.damageTime.cur > 0){
-                c.fillStyle= 'rgba(182, 53, 151, .5)';
-                c.fillRect(
-                    this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
-                    this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6, 
-                    DRAWN_SIZE/2, 
-                    1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
-                    );
-                c.fillStyle= '#B63597';
-                c.fillRect(
-                    this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
-                    this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6, 
-                    DRAWN_SIZE/2 * PLAYER_BOOTS.damageTime.cur/PLAYER_BOOTS.damageTime.max, 
-                    1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
-                    );
-                if(PLAYER_BOOTS.speedTime.cur > 0){
-                    c.fillStyle= 'rgba(89, 182, 53, .5)';
+            /**
+             * Рисуем бусты
+             */
+            PLAYER_BOOTS.allBoosts.filter(b=>PLAYER_BOOTS[`${b}Time`].cur > 0).forEach(
+                (boostName, index)=>{
+                    let boostColors = PLAYER_BOOTS[`${boostName}Colors`],
+                    boostState = PLAYER_BOOTS[`${boostName}Time`];
+                    c.fillStyle= boostColors.bg;
                     c.fillRect(
                         this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
-                        this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/20, 
+                        this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 +  (- 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/20)*index, 
                         DRAWN_SIZE/2, 
                         1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
                         );
-                    c.fillStyle= '#59B635';
+                    c.fillStyle= boostColors.color;
                     c.fillRect(
                         this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
-                        this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/20, 
-                        DRAWN_SIZE/2 * PLAYER_BOOTS.speedTime.cur/PLAYER_BOOTS.speedTime.max, 
+                        this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 + (- 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/20)*index, 
+                        DRAWN_SIZE/2 * boostState.cur/boostState.max, 
                         1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
                         );
                 }
-            } else if(PLAYER_BOOTS.speedTime.cur > 0){
-                c.fillStyle= 'rgba(89, 182, 53, .5)';
-                c.fillRect(
-                    this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
-                    this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6, 
-                    DRAWN_SIZE/2, 
-                    1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
-                    );
-                c.fillStyle= '#59B635';
-                c.fillRect(
-                    this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
-                    this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6, 
-                    DRAWN_SIZE/2 * PLAYER_BOOTS.speedTime.cur/PLAYER_BOOTS.speedTime.max, 
-                    1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
-                    );
-            }
+            )
             c.filter = `hue-rotate(-${(PLAYER_BOOTS.damage + PLAYER_BOOTS.speed - 2)*30}deg)`;
         }
         if(this.dir === Directions.right){
@@ -305,6 +296,10 @@ class Entity{
             c.drawImage(this.imagesLeft[this.state], ((this.state === States.walk?5 : 3) - this.curFrame) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x + OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
         c.filter = "none";
+        c.globalAlpha = 2*Math.abs(this.shieldAnim.max/2 - this.shieldAnim.value)/this.shieldAnim.max*0.4+0.6;
+        if(this.shieldAnim.isActive)
+            c.drawImage(this.shield, 0, 0, this.shield.width, this.shield.height, this.pos.x + DRAWN_SIZE/4- cameraPos.x, this.pos.y- cameraPos.y + DRAWN_SIZE/10, DRAWN_SIZE, DRAWN_SIZE);
+        c.globalAlpha = 1;
     }
 
     /**
@@ -335,6 +330,10 @@ class Entity{
     updateAnim(){
         this.counter.cur++;
         if(this.counter.cur % this.counter.fq === 0){
+            if(this.shieldAnim.isActive){
+                this.shieldAnim.value++;
+                if(this.shieldAnim.value === this.shieldAnim.max) this.shieldAnim.value = 0;
+            }
             if(this.team === 1) this._updatePlayerStates();
             this.curFrame++;
             this.shotEffectFrame.curFrame++;
@@ -347,6 +346,7 @@ class Entity{
     _updatePlayerStates(){
         if(PLAYER_BOOTS.damageTime.cur > 0) PLAYER_BOOTS.damageTime.cur--;
         if(PLAYER_BOOTS.speedTime.cur > 0) PLAYER_BOOTS.speedTime.cur--;
+        if(PLAYER_BOOTS.shieldTime.cur > 0) {PLAYER_BOOTS.shieldTime.cur--; if(PLAYER_BOOTS.shieldTime.cur === 0) this.shieldAnim.isActive = false;}
         if(PLAYER_BOOTS.damageTime.cur === 0) PLAYER_BOOTS.damage = 1;
         if(PLAYER_BOOTS.speedTime.cur === 0) PLAYER_BOOTS.speed = 1;
     }
@@ -622,7 +622,7 @@ class Entity{
 
     /**
      * Сменить оружие
-     * @param {'1'} newGun 
+     * @param {keyof GUNS} newGun 
      * @param {Boolean} hd hd текстуры или нет
      */
     setGun(newGun, hd = true){
@@ -637,6 +637,9 @@ class Entity{
         let box = this.getBox();
         if(this.team === 2){
             let dropPos = {x: box.x, y: box.y2-TILE_SIZE};
+            if(p.health < p.maxHealth*0.3)
+                new Drop(dropPos, 'health');
+            else
             if(Math.random() > 0.7 && Object.keys(GUNS).indexOf(this.gunName) > Object.keys(GUNS).indexOf(p.gunName))
                     new Drop(dropPos, 'gun', this.gunName);
             else if(Object.keys(GUNS).indexOf(this.gunName)*50+p.baseHealth > p.maxHealth){
@@ -645,7 +648,9 @@ class Entity{
                 new Drop(dropPos, 'damage');
             else if(Math.random() > 0.5)
                 new Drop(dropPos, 'speed');
-            else if(p.health < p.maxHealth*0.3 || Math.random() > 0.8)
+            else if(Math.random() > 0.5)
+                new Drop(dropPos, 'shield');
+            else if(Math.random() > 0.8)
                 new Drop(dropPos, 'health');
         }
         collisionEntities.splice(collisionEntities.indexOf(this), 1);

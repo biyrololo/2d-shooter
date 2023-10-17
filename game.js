@@ -97,6 +97,8 @@ function spawnEnemies(){
         let gun = Object.keys(GUNS)[block.type * 2 + (Math.random()>=0.5?1:0)];
         let skin = 'Biker';
         if(Math.random() > 0.5) skin='Cyborg';
+        let shield = false;
+        if(block.type >= 3 && Math.random() > 0.7 || 1) shield = true;
         // console.log(gun, block.type)
         new Entity(
             skin,  //sprite name
@@ -104,7 +106,8 @@ function spawnEnemies(){
             gun, //gun name
             2, //team
             isHdTextures, //hd 
-            70+50*block.type //макс хп
+            70+50*block.type, //макс хп
+            true //щит
         )
     })
 }

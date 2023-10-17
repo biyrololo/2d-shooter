@@ -45,9 +45,20 @@ function pointCollision(bullet){
             let collisionY = isInInterval(eBox.y, point.y, eBox.y2);
             let collisionX = isInInterval(eBox.x, point.x, eBox.x2);
             if(collisionX && collisionY && colEntity.team !== bullet.team){
-                colEntity.health -= bullet.damage;
+                if(colEntity.team === 1 && PLAYER_BOOTS.shieldTime.cur > 0){
+                    PLAYER_BOOTS.shieldTime.cur -= 20;
+                    if(PLAYER_BOOTS.shieldTime.cur <= 0) {
+                        PLAYER_BOOTS.shieldTime.cur = 0;
+                        p.shieldAnim.isActive = false;
+                    }
+                } else if(colEntity.team === 2 && colEntity.health > colEntity.maxHealth) {
+                    colEntity.health-= bullet.damage;
+                    if(colEntity.health <= colEntity.maxHealth) colEntity.shieldAnim.isActive = false;
+                } else {
+                    colEntity.health -= bullet.damage;
+                    new Blood(point);
+                }
                 colEntity.attacked = true;
-                new Blood(point);
                 if(colEntity.health <= 0){
                     colEntity.destroy();
                 }

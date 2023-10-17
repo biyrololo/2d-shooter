@@ -4,6 +4,11 @@ const PLAYER_BOOTS = {
     damage: 1.5,
     speedTime: {cur: 20, max: 200},
     damageTime: {cur: 20, max: 200},
+    shieldTime: {cur: 0, max: 300},
+    speedColors: {color: '#59B635', bg: 'rgba(89, 182, 53, .5)'},
+    damageColors: {color: '#B63597', bg: 'rgba(182, 53, 151, .5)'},
+    shieldColors: {color: '#00A7FF', bg: 'rgba(0, 55, 255, .5)'},
+    allBoosts: ['damage', 'speed', 'shield']
 };
 
 function setMouse(event){

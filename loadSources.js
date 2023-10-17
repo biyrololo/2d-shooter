@@ -19,7 +19,9 @@ const sourcesCommon = [
     '4 Shoot_effects/4_1.png',
     '4 Shoot_effects/5_1.png',
     'damage.png',
-    'speed.png'
+    'speed.png',
+    'shield.png',
+    'shieldDrop.png'
 ]
 
 const sourcesNonHd = [
