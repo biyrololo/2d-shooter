@@ -39,6 +39,15 @@ crosshairJump.src = `images/CrosshairJump.png`;
 const background = new Image();
 background.src = `images/BG.png`;
 
+const distantBg = new Image();
+distantBg.src = `images/distantBg.png`;
+
+const veryDistantBg = new Image();
+veryDistantBg.src = `images/veryDistantBg.png`;
+
+const backgroundFog = new Image();
+backgroundFog.src = `images/Frontal Fog.png`;
+
 function animate(){
     if(GAME_STATE === GAME_STATES.game) renderGame();
     requestAnimationFrame(animate);
@@ -48,6 +57,9 @@ function renderGame(){
   c.fillStyle='gray';
     c.fillRect(0, 0, canvas.width, canvas.height);
     c.drawImage(background, 0, 0, background.width, background.height, 0, 0, canvas.width, canvas.height);
+    c.drawImage(veryDistantBg, 0, 0, veryDistantBg.width, veryDistantBg.height, -cameraPos.x/20,-cameraPos.y/20-canvas.height/3, MAP_DRAWN_WIDTH/3, veryDistantBg.height / veryDistantBg.width * MAP_DRAWN_WIDTH/3)
+    c.drawImage(distantBg, 0, 0, distantBg.width, distantBg.height, -cameraPos.x/4,-cameraPos.y/4, MAP_DRAWN_WIDTH, distantBg.height / distantBg.width * MAP_DRAWN_WIDTH)
+    c.drawImage(backgroundFog, 0, 0, backgroundFog.width, backgroundFog.height, 0, canvas.height*0.7, canvas.width, canvas.height*0.3);
     updateCameraPos();
     c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y - 16 * TILE_SIZE, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
     CHECKPOINTS_BLOCKS.forEach(checkpoint=>{
@@ -98,7 +110,7 @@ function spawnEnemies(){
         let skin = 'Biker';
         if(Math.random() > 0.5) skin='Cyborg';
         let shield = false;
-        if(block.type >= 3 && Math.random() > 0.7 || 1) shield = true;
+        if(block.type >= 3 && Math.random() > 0.7) shield = true;
         // console.log(gun, block.type)
         new Entity(
             skin,  //sprite name
@@ -107,7 +119,7 @@ function spawnEnemies(){
             2, //team
             isHdTextures, //hd 
             70+50*block.type, //макс хп
-            true //щит
+            shield //щит
         )
     })
 }

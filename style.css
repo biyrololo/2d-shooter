@@ -23,12 +23,13 @@ div#menu{
     height: 100%;
     top: 0;
     left: 0;
-    background-color: purple;
     display: flex;
     flex-direction: column;
     align-items: center;
     font-family: 'title';
     justify-content: space-around;
+    background: rgb(128,0,128);
+    background: linear-gradient(139deg, rgba(128,0,128,1) 0%, rgba(78,10,85,1) 100%);
 }
 
 div#menu button{
@@ -55,9 +56,28 @@ div#menu button:active{
 
 div#menu #title{
     font-size: min(10rem, 10vw);
-    color: white;
     user-select: none;
+    background-image: linear-gradient(
+    -225deg,
+    #FFFFFF 0%,
+    #ff1361 100%
+    );
+    background-size: auto auto;
+    background-clip: border-box;
+    background-size: 200% auto;
+    background-clip: text;
+    text-fill-color: transparent;
+    color: white;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textclip 5s linear infinite;
     position: relative;
+}
+
+@keyframes textclip {
+    to {
+      background-position: 200% center;
+    }
 }
 
 div#menu span:first-child{

@@ -173,6 +173,11 @@ class Entity{
             step: 5,
         }
         this.showReload = false;
+        this.shieldHitAnimFrams = {
+            isActive: false,
+            max: 10,
+            value: 10
+        }
     }
 
     /**
@@ -251,10 +256,17 @@ class Entity{
         // let box = this.getBox();
         // c.fillStyle='rgba(255,0,0,.3)';
         // c.fillRect(box.x - cameraPos.x, box.y - cameraPos.y, box.x2 - box.x, box.y2 - box.y)
-        c.fillStyle= 'rgba(104, 32, 32, .6)';
-        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
-        c.fillStyle= '#CC3F3F';
-        c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * ((this.shieldAnim.isActive && this.team === 2) ? 1 : (this.health > 0?this.health / this.maxHealth : 0)), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        if(this.shieldAnim.isActive && this.team === 2){
+            c.fillStyle = PLAYER_BOOTS.shieldColors.bg;
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+            c.fillStyle = PLAYER_BOOTS.shieldColors.color;
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 *((this.health-this.maxHealth)/(this.maxHealth/2)), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        } else{
+            c.fillStyle = 'rgba(104, 32, 32, .6)';
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+            c.fillStyle = '#CC3F3F';
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 *(this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        }
         // c.drawImage(HEALTH_BAR.empty, 0, 0, HEALTH_BAR.empty.width, HEALTH_BAR.empty.height, this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         // c.drawImage(HEALTH_BAR.filled, 0, 0, HEALTH_BAR.empty.width*(this.health > 0?this.health / this.maxHealth : 0), HEALTH_BAR.empty.height, this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         if(this.showReload){
@@ -295,11 +307,13 @@ class Entity{
         else{
             c.drawImage(this.imagesLeft[this.state], ((this.state === States.walk?5 : 3) - this.curFrame) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x + OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
-        c.filter = "none";
+        if(this.shieldHitAnimFrams.isActive)
+            c.filter = `brightness(${100+this.shieldHitAnimFrams.value/this.shieldHitAnimFrams.max*100}%)`;
         c.globalAlpha = 2*Math.abs(this.shieldAnim.max/2 - this.shieldAnim.value)/this.shieldAnim.max*0.4+0.6;
         if(this.shieldAnim.isActive)
-            c.drawImage(this.shield, 0, 0, this.shield.width, this.shield.height, this.pos.x + DRAWN_SIZE/4- cameraPos.x, this.pos.y- cameraPos.y + DRAWN_SIZE/10, DRAWN_SIZE, DRAWN_SIZE);
+        c.drawImage(this.shield, 0, 0, this.shield.width, this.shield.height, this.pos.x + DRAWN_SIZE/4- cameraPos.x, this.pos.y- cameraPos.y + DRAWN_SIZE/10, DRAWN_SIZE, DRAWN_SIZE);
         c.globalAlpha = 1;
+        c.filter = "none";
     }
 
     /**
@@ -333,6 +347,10 @@ class Entity{
             if(this.shieldAnim.isActive){
                 this.shieldAnim.value++;
                 if(this.shieldAnim.value === this.shieldAnim.max) this.shieldAnim.value = 0;
+            }
+            if(this.shieldHitAnimFrams.isActive && this.shieldHitAnimFrams.value > 0){
+                this.shieldHitAnimFrams.value--;
+                if( this.shieldHitAnimFrams.value === 0)  this.shieldHitAnimFrams.isActive = false;
             }
             if(this.team === 1) this._updatePlayerStates();
             this.curFrame++;
@@ -626,6 +644,8 @@ class Entity{
      * @param {Boolean} hd hd текстуры или нет
      */
     setGun(newGun, hd = true){
+        console.log(newGun, this.gunName)
+        if(parseInt(newGun) <= parseInt(this.gunName)) {this.health = this.maxHealth; return}
         this.gunName = newGun;
         this.gunObj = structuredClone(getGun(newGun));
         this.gun.src = `images/2 Guns/${this.gunObj.srcHD.right}`;
@@ -644,9 +664,9 @@ class Entity{
                     new Drop(dropPos, 'gun', this.gunName);
             else if(Object.keys(GUNS).indexOf(this.gunName)*50+p.baseHealth > p.maxHealth){
                 new Drop(dropPos, 'maxHealth'); }
-            else if(Math.random() > 0.5)
+            else if(Math.random() > 0.6)
                 new Drop(dropPos, 'damage');
-            else if(Math.random() > 0.5)
+            else if(Math.random() > 0.6)
                 new Drop(dropPos, 'speed');
             else if(Math.random() > 0.5)
                 new Drop(dropPos, 'shield');

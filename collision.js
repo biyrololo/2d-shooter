@@ -47,12 +47,16 @@ function pointCollision(bullet){
             if(collisionX && collisionY && colEntity.team !== bullet.team){
                 if(colEntity.team === 1 && PLAYER_BOOTS.shieldTime.cur > 0){
                     PLAYER_BOOTS.shieldTime.cur -= 20;
+                    colEntity.shieldHitAnimFrams.isActive = true;
+                    colEntity.shieldHitAnimFrams.value = colEntity.shieldHitAnimFrams.max;
                     if(PLAYER_BOOTS.shieldTime.cur <= 0) {
                         PLAYER_BOOTS.shieldTime.cur = 0;
                         p.shieldAnim.isActive = false;
                     }
                 } else if(colEntity.team === 2 && colEntity.health > colEntity.maxHealth) {
                     colEntity.health-= bullet.damage;
+                    colEntity.shieldHitAnimFrams.isActive = true;
+                    colEntity.shieldHitAnimFrams.value = colEntity.shieldHitAnimFrams.max;
                     if(colEntity.health <= colEntity.maxHealth) colEntity.shieldAnim.isActive = false;
                 } else {
                     colEntity.health -= bullet.damage;

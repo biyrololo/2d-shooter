@@ -21,7 +21,10 @@ const sourcesCommon = [
     'damage.png',
     'speed.png',
     'shield.png',
-    'shieldDrop.png'
+    'shieldDrop.png',
+    'distantBg.png',
+    'Frontal Fog.png',
+    'veryDistantBg.png'
 ]
 
 const sourcesNonHd = [
