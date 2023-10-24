@@ -1,7 +1,7 @@
 const mouse = {x: 0, y: 0};
 const PLAYER_BOOTS = {
     speed: 1.2,
-    damage: 1.5,
+    damage: 1.4,
     speedTime: {cur: 20, max: 200},
     damageTime: {cur: 20, max: 200},
     shieldTime: {cur: 0, max: 400},
@@ -87,7 +87,6 @@ function firstStart(){
         animate();
         document.querySelector('#menu').setAttribute('data-hide', 'true');
     };
-    
     if (map.complete && map.naturalWidth !== 0) {
         // Карта уже была загружена до установки onload
         map.onload();

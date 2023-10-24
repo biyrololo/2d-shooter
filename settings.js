@@ -17,7 +17,7 @@ const HEALTH_BAR = {
 HEALTH_BAR.empty.src = `images/UI/HBempty.png`;
 HEALTH_BAR.filled.src = `images/UI/HBfilled.png`;
 
-const MAP_WIDTH = 208;
+const MAP_WIDTH = 272;
 const SPAWN_POINT = {x: 0, y: 0};
 const map = new Image();
 

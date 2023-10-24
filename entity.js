@@ -80,7 +80,7 @@ class Entity{
         this.spriteScale = HD ? 5.5: 1;
         this.startPos = structuredClone(startPos);
         this.weight = 1;
-        this.jumpVelocity = DRAWN_SIZE * 2.2;
+        this.jumpVelocity = DRAWN_SIZE * 2;
         this.jumpDuration = {cur: 0, max: 12};
         this.maxHealth = maxHealth;
         this.health = this.maxHealth;
@@ -261,39 +261,60 @@ class Entity{
             c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
             c.fillStyle = PLAYER_BOOTS.shieldColors.color;
             c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 *((this.health-this.maxHealth)/(this.maxHealth/2)), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+        } else if(this.team === 1 && PLAYER_BOOTS.shieldTime.cur > 0){
+            let boostName = 'shield';
+            let boostColors = PLAYER_BOOTS[`${boostName}Colors`],
+            boostState = PLAYER_BOOTS[`${boostName}Time`];
+            c.fillStyle = 'rgba(0, 0, 0, 1)';
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x-1, this.pos.y - cameraPos.y-1, DRAWN_SIZE/2+2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6+2);
+            c.fillStyle = boostColors.bg;
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6);
+            c.fillStyle = boostColors.color;
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 *boostState.cur / boostState.max, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6);
         } else{
+            c.fillStyle = 'rgba(0, 0, 0, 1)';
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x-1, this.pos.y - cameraPos.y-1, DRAWN_SIZE/2+2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6+2);
             c.fillStyle = 'rgba(104, 32, 32, .6)';
-            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6);
             c.fillStyle = '#CC3F3F';
-            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 *(this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 *(this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6);
         }
         // c.drawImage(HEALTH_BAR.empty, 0, 0, HEALTH_BAR.empty.width, HEALTH_BAR.empty.height, this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         // c.drawImage(HEALTH_BAR.filled, 0, 0, HEALTH_BAR.empty.width*(this.health > 0?this.health / this.maxHealth : 0), HEALTH_BAR.empty.height, this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 * (this.health > 0?this.health / this.maxHealth : 0), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
         if(this.showReload){
+            c.fillStyle = 'rgba(0, 0, 0, 1)';
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x-1, this.pos.y - cameraPos.y - DRAWN_SIZE/10-1, DRAWN_SIZE/2+2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6+2);
             c.fillStyle= 'rgba(168, 134, 19, .5)';
-            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/5, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/10, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6);
             c.fillStyle= '#ffca1c';
-            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/5, DRAWN_SIZE/2 * ((this.gunObj.reloadMax - this.reload))/(this.gunObj.reloadMax), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y - DRAWN_SIZE/10, DRAWN_SIZE/2 * ((this.gunObj.reloadMax - this.reload))/(this.gunObj.reloadMax), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6);
         }
         if(this.team === 1) {
             /**
              * Рисуем бусты
              */
-            PLAYER_BOOTS.allBoosts.filter(b=>PLAYER_BOOTS[`${b}Time`].cur > 0).forEach(
+            PLAYER_BOOTS.allBoosts.filter(b=>PLAYER_BOOTS[`${b}Time`].cur > 0 && b !== 'shield').forEach(
                 (boostName, index)=>{
                     let boostColors = PLAYER_BOOTS[`${boostName}Colors`],
                     boostState = PLAYER_BOOTS[`${boostName}Time`];
+                    c.fillStyle = 'rgba(0, 0, 0, 1)';
+                    c.fillRect(
+                        -1+this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
+                        -1+this.pos.y - cameraPos.y - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  (- 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/50)*index, 
+                        2+DRAWN_SIZE/2, 
+                        2+1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
+                        );
                     c.fillStyle= boostColors.bg;
                     c.fillRect(
                         this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
-                        this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 +  (- 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/20)*index, 
+                        this.pos.y - cameraPos.y - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  (- 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/50)*index, 
                         DRAWN_SIZE/2, 
                         1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
                         );
                     c.fillStyle= boostColors.color;
                     c.fillRect(
                         this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
-                        this.pos.y - cameraPos.y - DRAWN_SIZE/5 - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 +  1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 + (- 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/20)*index, 
+                        this.pos.y - cameraPos.y - 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3 - DRAWN_SIZE/20 + (- 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6 - DRAWN_SIZE/50)*index, 
                         DRAWN_SIZE/2 * boostState.cur/boostState.max, 
                         1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6
                         );

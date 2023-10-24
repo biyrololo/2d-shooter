@@ -76,7 +76,7 @@ function renderGame(){
     // let box = p.getBox();
     // c.fillStyle = 'green';
     // c.fillRect(box.x - cameraPos.x ,box.y - cameraPos.y, box.x2-box.x, box.y2 - box.y);
-    collisionEntities.forEach(e=>e.update())
+    collisionEntities.forEach(e=>{if(Math.sqrt(Math.pow(e.pos.x - p.pos.x, 2) + Math.pow(e.pos.y - p.pos.y, 2)) <= canvas.width) e.update();})
     BLOOD_EFFECTS.forEach(e=>e.draw())
     if(isMobile) drawMobileControl();
     else drawCrosshair();
