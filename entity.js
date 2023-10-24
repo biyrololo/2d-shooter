@@ -73,7 +73,7 @@ class Entity{
      * @param {number} maxHealth макс хп
      * @param {Boolean} isShield есть ли щит
      */
-    constructor(charName, startPos = {x: 0, y: 200}, gun = '1', team = 2, HD = false, maxHealth = 100, isShield = false){
+    constructor(charName, startPos = {x: -500, y: -500}, gun = '1', team = 2, HD = false, maxHealth = 100, isShield = false){
         this.gunName = gun;
         this.baseHealth = maxHealth;
         let hd = HD?'HD':'';
