@@ -226,6 +226,8 @@ class Entity{
         //     x: this.pos.x + DRAWN_SIZE/2,
         //     y: this.pos.y + DRAWN_SIZE/2
         // };
+        translatePos.y = translatePos.y || -500;
+        translatePos.x = translatePos.x || -500;
         c.translate(translatePos.x ,translatePos.y);
         c.rotate(this.handleAngle);
         // c.fillStyle ='red';
