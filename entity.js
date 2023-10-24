@@ -136,7 +136,7 @@ class Entity{
         //     this.images.walk.src = `${IMAGES_SRC}${charName}/Run1${hd}.png`;
         //     this.imagesLeft.walk.src = `${IMAGES_SRC}${charName}/Run1Left${hd}.png`;
         // }
-        this.pos = {x: 0, y: 0};
+        this.pos = {x: -500, y: -500};
         this.setPos(startPos);
         this.state = States.idle;
         this.curFrame = 0;
