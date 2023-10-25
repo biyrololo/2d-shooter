@@ -30,6 +30,11 @@ class Drop{
         } else if(type === 'shield'){
             this.image.src = 'images/shieldDrop.png';
         }
+        this.animFrames = {
+            cur: 0,
+            max: 20,
+            fr: {timer: 0, v: 5}
+        }
         drops.push(this);
     }
 
@@ -42,6 +47,11 @@ class Drop{
     }
 
     _draw(){
+        this.animFrames.fr.timer++;
+        if(this.animFrames.fr.timer % this.animFrames.fr.v === 0){
+            this.animFrames.cur++;
+            if(this.animFrames.cur === this.animFrames.max) this.animFrames.cur = 0;
+        }
         c.drawImage(this.image, 0, 0, this.image.width, this.image.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y - (this.image.height/this.image.width - 1) * this.size, this.size, this.size*this.image.height/this.image.width)
     }
 

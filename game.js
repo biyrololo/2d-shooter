@@ -61,7 +61,7 @@ function renderGame(){
     c.drawImage(distantBg, 0, 0, distantBg.width, distantBg.height, -cameraPos.x/4,-cameraPos.y/4, MAP_DRAWN_WIDTH, distantBg.height / distantBg.width * MAP_DRAWN_WIDTH)
     c.drawImage(backgroundFog, 0, 0, backgroundFog.width, backgroundFog.height, 0, canvas.height*0.7, canvas.width, canvas.height*0.3);
     updateCameraPos();
-    c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y - 16 * TILE_SIZE, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
+    c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y - 32 * TILE_SIZE, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
     CHECKPOINTS_BLOCKS.forEach(checkpoint=>{
         checkpoint.update();
     })
