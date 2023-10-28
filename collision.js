@@ -45,12 +45,12 @@ function pointCollision(bullet){
             let collisionY = isInInterval(eBox.y, point.y, eBox.y2);
             let collisionX = isInInterval(eBox.x, point.x, eBox.x2);
             if(collisionX && collisionY && colEntity.team !== bullet.team){
-                if(colEntity.team === 1 && PLAYER_BOOTS.shieldTime.cur > 0){
-                    PLAYER_BOOTS.shieldTime.cur -= 20;
+                if(colEntity.team === 1 && PLAYER_BOOSTS.shieldTime.cur > 0){
+                    PLAYER_BOOSTS.shieldTime.cur -= 20;
                     colEntity.shieldHitAnimFrams.isActive = true;
                     colEntity.shieldHitAnimFrams.value = colEntity.shieldHitAnimFrams.max;
-                    if(PLAYER_BOOTS.shieldTime.cur <= 0) {
-                        PLAYER_BOOTS.shieldTime.cur = 0;
+                    if(PLAYER_BOOSTS.shieldTime.cur <= 0) {
+                        PLAYER_BOOSTS.shieldTime.cur = 0;
                         p.shieldAnim.isActive = false;
                     }
                 } else if(colEntity.team === 2 && colEntity.health > colEntity.maxHealth) {

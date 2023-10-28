@@ -1,5 +1,5 @@
 const mouse = {x: 0, y: 0};
-const PLAYER_BOOTS = {
+const PLAYER_BOOSTS = {
     speed: 1.2,
     damage: 1.4,
     speedTime: {cur: 20, max: 200},
@@ -179,7 +179,7 @@ document.addEventListener('click', ()=>{
         }
         handPos = {x: translatePos.x - (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(p.handleAngle), y: translatePos.y + (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(p.handleAngle)};
     }
-    bullets.push(new Bullet(p.gunObj.bullet, p.gunObj.bulletSpeed, p.gunObj.baseDamage * PLAYER_BOOTS.damage, handPos, {x: mouse.x + cameraPos.x, y: mouse.y + cameraPos.y}, 1, undefined, true, (p.gunObj.bulletSize || 1), p.gunObj.maxDistScale || 1));
+    bullets.push(new Bullet(p.gunObj.bullet, p.gunObj.bulletSpeed, p.gunObj.baseDamage * PLAYER_BOOSTS.damage, handPos, {x: mouse.x + cameraPos.x, y: mouse.y + cameraPos.y}, 1, undefined, true, (p.gunObj.bulletSize || 1), p.gunObj.maxDistScale || 1));
     p.reload = p.gunObj.reloadMax;
     p.playShotEffect();
 })

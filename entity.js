@@ -232,7 +232,7 @@ class Entity{
         c.rotate(this.handleAngle);
         // c.fillStyle ='red';
         // c.fillRect(-5, 0, 10, 70);
-        if(this.team === 1) c.filter = `hue-rotate(-${(PLAYER_BOOTS.damage + PLAYER_BOOTS.speed - 2)*30}deg)`;
+        if(this.team === 1) c.filter = `hue-rotate(-${(PLAYER_BOOSTS.damage + PLAYER_BOOSTS.speed - 2)*30}deg)`;
         if(this.dir === Directions.right){
             c.drawImage(this.hand, 0, 0, this.hand.width, this.hand.height, -HAND_SIZE/2, 0, HAND_SIZE, this.hand.height / this.hand.width * HAND_SIZE);
             c.drawImage(this.gun, 0, 0, this.gun.width, this.gun.height, -HAND_SIZE/2 + 2, HAND_SIZE+HAND_SIZE, HAND_SIZE, this.gun.height / this.gun.width * HAND_SIZE);
@@ -259,14 +259,19 @@ class Entity{
         // c.fillStyle='rgba(255,0,0,.3)';
         // c.fillRect(box.x - cameraPos.x, box.y - cameraPos.y, box.x2 - box.x, box.y2 - box.y)
         if(this.shieldAnim.isActive && this.team === 2){
-            c.fillStyle = PLAYER_BOOTS.shieldColors.bg;
-            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
-            c.fillStyle = PLAYER_BOOTS.shieldColors.color;
-            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 *((this.health-this.maxHealth)/(this.maxHealth/2)), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/3);
-        } else if(this.team === 1 && PLAYER_BOOTS.shieldTime.cur > 0){
             let boostName = 'shield';
-            let boostColors = PLAYER_BOOTS[`${boostName}Colors`],
-            boostState = PLAYER_BOOTS[`${boostName}Time`];
+            let boostColors = PLAYER_BOOSTS[`${boostName}Colors`],
+            boostState = PLAYER_BOOSTS[`${boostName}Time`];
+            c.fillStyle = 'rgba(0, 0, 0, 1)';
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x-1, this.pos.y - cameraPos.y-1, DRAWN_SIZE/2+2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6+2);
+            c.fillStyle = boostColors.bg;
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6);
+            c.fillStyle = boostColors.color;
+            c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x, this.pos.y - cameraPos.y, DRAWN_SIZE/2 *((this.health-this.maxHealth)/(this.maxHealth/2)), 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6);
+        } else if(this.team === 1 && PLAYER_BOOSTS.shieldTime.cur > 0){
+            let boostName = 'shield';
+            let boostColors = PLAYER_BOOSTS[`${boostName}Colors`],
+            boostState = PLAYER_BOOSTS[`${boostName}Time`];
             c.fillStyle = 'rgba(0, 0, 0, 1)';
             c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x-1, this.pos.y - cameraPos.y-1, DRAWN_SIZE/2+2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6+2);
             c.fillStyle = boostColors.bg;
@@ -295,10 +300,10 @@ class Entity{
             /**
              * Рисуем бусты
              */
-            PLAYER_BOOTS.allBoosts.filter(b=>PLAYER_BOOTS[`${b}Time`].cur > 0 && b !== 'shield').forEach(
+            PLAYER_BOOSTS.allBoosts.filter(b=>PLAYER_BOOSTS[`${b}Time`].cur > 0 && b !== 'shield').forEach(
                 (boostName, index)=>{
-                    let boostColors = PLAYER_BOOTS[`${boostName}Colors`],
-                    boostState = PLAYER_BOOTS[`${boostName}Time`];
+                    let boostColors = PLAYER_BOOSTS[`${boostName}Colors`],
+                    boostState = PLAYER_BOOSTS[`${boostName}Time`];
                     c.fillStyle = 'rgba(0, 0, 0, 1)';
                     c.fillRect(
                         -1+this.pos.x+DRAWN_SIZE/2 - cameraPos.x, 
@@ -322,7 +327,7 @@ class Entity{
                         );
                 }
             )
-            c.filter = `hue-rotate(-${(PLAYER_BOOTS.damage + PLAYER_BOOTS.speed - 2)*30}deg)`;
+            c.filter = `hue-rotate(-${(PLAYER_BOOSTS.damage + PLAYER_BOOSTS.speed - 2)*30}deg)`;
         }
         if(this.dir === Directions.right){
             c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
@@ -385,11 +390,11 @@ class Entity{
     }
 
     _updatePlayerStates(){
-        if(PLAYER_BOOTS.damageTime.cur > 0) PLAYER_BOOTS.damageTime.cur--;
-        if(PLAYER_BOOTS.speedTime.cur > 0) PLAYER_BOOTS.speedTime.cur--;
-        if(PLAYER_BOOTS.shieldTime.cur > 0) {PLAYER_BOOTS.shieldTime.cur--; if(PLAYER_BOOTS.shieldTime.cur === 0) this.shieldAnim.isActive = false;}
-        if(PLAYER_BOOTS.damageTime.cur === 0) PLAYER_BOOTS.damage = 1;
-        if(PLAYER_BOOTS.speedTime.cur === 0) PLAYER_BOOTS.speed = 1;
+        if(PLAYER_BOOSTS.damageTime.cur > 0) PLAYER_BOOSTS.damageTime.cur--;
+        if(PLAYER_BOOSTS.speedTime.cur > 0) PLAYER_BOOSTS.speedTime.cur--;
+        if(PLAYER_BOOSTS.shieldTime.cur > 0) {PLAYER_BOOSTS.shieldTime.cur--; if(PLAYER_BOOSTS.shieldTime.cur === 0) this.shieldAnim.isActive = false;}
+        if(PLAYER_BOOSTS.damageTime.cur === 0) PLAYER_BOOSTS.damage = 1;
+        if(PLAYER_BOOSTS.speedTime.cur === 0) PLAYER_BOOSTS.speed = 1;
     }
 
     /**
@@ -400,7 +405,7 @@ class Entity{
      */
     move(x = 0){
         let scale = 1;
-        if(this.team === 1) scale = PLAYER_BOOTS.speed;
+        if(this.team === 1) scale = PLAYER_BOOSTS.speed;
         let res = false;
         this.pos.x+=x*this.speed*GLOBAS_SCALE*scale;
         if(entitiesCollision(this) || fullCollWithMap(this)){

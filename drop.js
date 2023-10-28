@@ -68,16 +68,16 @@ class Drop{
                 p.health = p.maxHealth;
                 break;
             case 'speed':
-                PLAYER_BOOTS.speed=1.2;
-                PLAYER_BOOTS.speedTime.cur = PLAYER_BOOTS.speedTime.max;
+                PLAYER_BOOSTS.speed=1.2;
+                PLAYER_BOOSTS.speedTime.cur = PLAYER_BOOSTS.speedTime.max;
                 break;
             case 'damage':
-                PLAYER_BOOTS.damage=1.5;
-                PLAYER_BOOTS.damageTime.cur = PLAYER_BOOTS.damageTime.max;
+                PLAYER_BOOSTS.damage=1.5;
+                PLAYER_BOOSTS.damageTime.cur = PLAYER_BOOSTS.damageTime.max;
                 break;
             case 'shield':
                 p.shieldAnim.isActive = true;
-                PLAYER_BOOTS.shieldTime.cur = PLAYER_BOOTS.shieldTime.max;
+                PLAYER_BOOSTS.shieldTime.cur = PLAYER_BOOSTS.shieldTime.max;
                 break;
         }
         this._destroy();
