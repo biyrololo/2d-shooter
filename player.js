@@ -104,7 +104,7 @@ function startGame(){
     drops.splice(0, drops.length);
     DROP_BLOCKS.forEach(d=>{
         if(d.dropType === 'gun')
-            new Drop({x: d.x * TILE_SIZE, y: d.y * TILE_SIZE}, 'gun', String(d.type === 1? 2: d.type*2));
+            new Drop({x: d.x * TILE_SIZE, y: d.y * TILE_SIZE}, 'gun', String(d.type === 1? 2: (d.type*2 + Math.floor(Math.random()*2))));
         if(d.dropType === 'speed')
             new Drop({x: d.x * TILE_SIZE, y: d.y * TILE_SIZE}, 'speed');
         if(d.dropType === 'damage')
