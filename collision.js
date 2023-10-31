@@ -111,8 +111,9 @@ function entitiesCollision(ent){
          */
         (colEntity, i)=>{
                 let eBox = colEntity.getBox();
-                let collisionY = isInInterval(eBox.y, entBox.y, eBox.y2) || isInInterval(eBox.y, entBox.y2, eBox.y2);
-                let collisionX = isInInterval(eBox.x, entBox.x, eBox.x2) || isInInterval(eBox.x, entBox.x2, eBox.x2);
+                let collisionY = isInInterval(eBox.y, entBox.y, eBox.y2) || isInInterval(eBox.y, entBox.y2, eBox.y2) || isInInterval(entBox.y.y, eBox.y, entBox.y.y2) || isInInterval(entBox.y, eBox.y2, entBox.y2);
+                let collisionX = isInInterval(eBox.x, entBox.x, eBox.x2) || isInInterval(eBox.x, entBox.x2, eBox.x2) ||
+                isInInterval(entBox.x, eBox.x, entBox.x2) || isInInterval(entBox.x, eBox.x2, entBox.x2);
                 if(collisionX && collisionY){
                     res = true;
                 }

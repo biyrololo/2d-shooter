@@ -73,7 +73,8 @@ class Entity{
      * @param {number} maxHealth макс хп
      * @param {Boolean} isShield есть ли щит
      */
-    constructor(charName, startPos = {x: -500, y: -500}, gun = '1', team = 2, HD = false, maxHealth = 100, isShield = false){
+    constructor(charName, startPos = {x: -500, y: -500}, gun = '1', team = 2, HD = false, maxHealth = 100, isShield = false, freeMove = false){
+        this._aiFreeMove = freeMove;
         this.gunName = gun;
         this.baseHealth = maxHealth;
         let hd = HD?'HD':'';
@@ -260,8 +261,7 @@ class Entity{
         // c.fillRect(box.x - cameraPos.x, box.y - cameraPos.y, box.x2 - box.x, box.y2 - box.y)
         if(this.shieldAnim.isActive && this.team === 2){
             let boostName = 'shield';
-            let boostColors = PLAYER_BOOSTS[`${boostName}Colors`],
-            boostState = PLAYER_BOOSTS[`${boostName}Time`];
+            let boostColors = PLAYER_BOOSTS[`${boostName}Colors`];
             c.fillStyle = 'rgba(0, 0, 0, 1)';
             c.fillRect(this.pos.x+DRAWN_SIZE/2 - cameraPos.x-1, this.pos.y - cameraPos.y-1, DRAWN_SIZE/2+2, 1.5*OFFSET.top*DRAWN_SIZE/SPRITE_SIZE/6+2);
             c.fillStyle = boostColors.bg;
@@ -423,18 +423,22 @@ class Entity{
      */
     getBox(){
         let thisBox = {x: 0, y: 0, x2: 0, y2: 0};
-        if(this.dir === Directions.right || 1){
-            thisBox.x = this.pos.x + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE;
-            thisBox.y = this.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE;
-            thisBox.x2 = this.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE;
-            thisBox.y2 = this.pos.y + DRAWN_SIZE;
-        }
-        else{
-            thisBox.x = this.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE;
-            thisBox.y = this.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE;
-            thisBox.x2 = this.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE;
-            thisBox.y2 = this.pos.y+ DRAWN_SIZE;
-        }
+        thisBox.x = this.pos.x + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE;
+        thisBox.y = this.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE;
+        thisBox.x2 = this.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE;
+        thisBox.y2 = this.pos.y + DRAWN_SIZE;
+        // if(this.dir === Directions.right || 1){
+        //     thisBox.x = this.pos.x + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE;
+        //     thisBox.y = this.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE;
+        //     thisBox.x2 = this.pos.x + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE;
+        //     thisBox.y2 = this.pos.y + DRAWN_SIZE;
+        // }
+        // else{
+        //     thisBox.x = this.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + OFFSET.left*DRAWN_SIZE/SPRITE_SIZE;
+        //     thisBox.y = this.pos.y + OFFSET.top*DRAWN_SIZE/SPRITE_SIZE;
+        //     thisBox.x2 = this.pos.x - OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE + DRAWN_SIZE + OFFSET.right*DRAWN_SIZE/SPRITE_SIZE;
+        //     thisBox.y2 = this.pos.y+ DRAWN_SIZE;
+        // }
         return thisBox;
     }
 
@@ -649,7 +653,7 @@ class Entity{
         if(Math.pow(p.pos.x - this.pos.x, 2) + Math.pow(p.pos.y-this.pos.y, 2) <= AI_MAX_DIST*AI_MAX_DIST){
             if((dist >= AI_MIN_DIST || dist === 0) && Math.abs(this.startPos.x - this.pos.x) < this.AI_WALK.time.mTime*this.speed*GLOBAS_SCALE*0.5){
                 this.isMove = !this.move(this.dir * 0.6);
-                if(!bottomCollisionWithMap(this).res){
+                if(!bottomCollisionWithMap(this).res && !this._aiFreeMove){
                     this.move(this.dir * (-0.6));
                     this.isMove = false;
                 }
