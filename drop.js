@@ -1,3 +1,5 @@
+"use strict"
+
 /**
  * @type {Array<Drop>}
  */
@@ -52,7 +54,9 @@ class Drop{
             this.animFrames.cur++;
             if(this.animFrames.cur === this.animFrames.max) this.animFrames.cur = 0;
         }
-        c.drawImage(this.image, 0, 0, this.image.width, this.image.height, this.pos.x - cameraPos.x, this.pos.y - cameraPos.y - (this.image.height/this.image.width - 1) * this.size, this.size, this.size*this.image.height/this.image.width)
+        let drawnSize = (Math.abs(this.animFrames.cur-this.animFrames.max/2)/(this.animFrames.max/2))*0.2+0.8;
+        // let drawnSize = 1;
+        c.drawImage(this.image, 0, 0, this.image.width, this.image.height, this.pos.x - cameraPos.x + (1-drawnSize)/2*this.size, this.pos.y - cameraPos.y - (this.image.height/this.image.width - 1) * this.size + (1-drawnSize)*this.size, this.size*drawnSize, this.size*drawnSize*this.image.height/this.image.width)
     }
 
     _onPlayerCollision(){

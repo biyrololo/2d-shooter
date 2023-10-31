@@ -458,18 +458,27 @@ class Entity{
     }
 
     _doingJump(){
-        this.pos.y -= this.jumpVelocity / this.jumpDuration.max;
+        const neededJump = this.jumpVelocity / this.jumpDuration.max;
+        const jumpStep = 5;
         this.jumpDuration.cur++;
         if(this.jumpDuration.cur >= this.jumpDuration.max){
             this.isJump = false;
         }
-        else if(fullCollWithMap(this)){
-            this.isJump = false;
-            // this.pos.y += this.jumpVelocity / this.jumpDuration.max;
-        }
-        else if(entitiesCollision(this)){
-            this.isJump = false;
-            this.pos.y += 2 * GLOBAS_SCALE;
+        /**
+         * Фикс бага, когда во время прыжка противник сверху и игрок пролетает через него
+         */
+        else for(let i = 0; i < neededJump; i+=jumpStep){
+            this.pos.y -= jumpStep;
+            if(fullCollWithMap(this)){
+                this.isJump = false;
+                break;
+                // this.pos.y += this.jumpVelocity / this.jumpDuration.max;
+            }
+            else if(entitiesCollision(this)){
+                this.isJump = false;
+                this.pos.y += 2 * GLOBAS_SCALE;
+                break;
+            }
         }
     }
 
@@ -632,7 +641,7 @@ class Entity{
     /**
      * Следует за игроком
      * @param {number} dist расстояние до игрока
-     * @param {number} dir новое направление движения для ентити
+     * @param {-1 | 0 | 1} dir новое направление движения для ентити
      */
     _aiFollowPlayer(dist = 0, dir = 0){
         if(dir !== 0)

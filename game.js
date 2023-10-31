@@ -53,6 +53,15 @@ function animate(){
     requestAnimationFrame(animate);
 }
 
+/**
+ * Проверяет, попадает ли объект в камере по позиции
+ * @param {{x: number, y: number}} pos
+ * @returns 
+ */
+function isInScreen(pos = {x: 0, y: 0}){
+  return Math.pow(pos.x - p.pos.x, 2) + Math.pow(pos.y - p.pos.y, 2) <= canvas.width*canvas.width
+}
+
 function renderGame(){
   c.fillStyle='gray';
     c.fillRect(0, 0, canvas.width, canvas.height);
@@ -63,9 +72,11 @@ function renderGame(){
     updateCameraPos();
     c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y - 32 * TILE_SIZE, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
     CHECKPOINTS_BLOCKS.forEach(checkpoint=>{
+      if(isInScreen(checkpoint.pos))
         checkpoint.update();
     })
     drops.forEach(d=>{
+    if(isInScreen(d.pos))
         d.update();
     })
     // c.fillStyle = 'green';
@@ -76,7 +87,7 @@ function renderGame(){
     // let box = p.getBox();
     // c.fillStyle = 'green';
     // c.fillRect(box.x - cameraPos.x ,box.y - cameraPos.y, box.x2-box.x, box.y2 - box.y);
-    collisionEntities.forEach(e=>{if(Math.sqrt(Math.pow(e.pos.x - p.pos.x, 2) + Math.pow(e.pos.y - p.pos.y, 2)) <= canvas.width) 
+    collisionEntities.forEach(e=>{if(isInScreen(e.pos)) 
       {
         e.update();
       }

@@ -11818,7 +11818,11 @@ const MAP_LAYERS = [
 /**
  * @type {Array<{x: number, y: number}>}
  */
-const COLLISION_BLOCKS = [], DIE_ENTITY_BLOCKS = [], ENEMY_SPAWN_BLOCKS = [], CHECKPOINTS_BLOCKS = [], DROP_BLOCKS = []; //=Data Map
+const COLLISION_BLOCKS = [], DIE_ENTITY_BLOCKS = [], ENEMY_SPAWN_BLOCKS = [], DROP_BLOCKS = []; //=Data Map
+/**
+ * @type {Checkpoint[]}
+ */
+const CHECKPOINTS_BLOCKS = [];
 MAP_LAYERS[2]['chunks'].forEach(block=>{
     block.data.forEach((tile, i)=>{
         if(tile !== 0){

@@ -43,7 +43,7 @@ const GUNS = {
             left: '3_1LeftHD.png',
         },
         reloadMax: .85 * 60,
-        baseDamage: 70,
+        baseDamage: 80,
         bullet: '3',
         shotEffect: '2_1',
         bulletSpeed: 12,
