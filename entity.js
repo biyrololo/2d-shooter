@@ -546,7 +546,7 @@ class Entity{
             }
             handPos = {x: translatePos.x - (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(this.handleAngle), y: translatePos.y + (this.hand.height / this.hand.width * HAND_SIZE+this.gun.height / this.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(this.handleAngle)};
         }
-            bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage*0.6, handPos, handPos, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true, this.gunObj.bulletSize || 1, this.gunObj.maxDistScale || 1));
+        bullets.push(new Bullet(this.gunObj.bullet, this.gunObj.bulletSpeed, this.gunObj.baseDamage*0.9, handPos, handPos, 2, this.handleAngle + Math.PI/2+randomShift*Math.PI/20, true, this.gunObj.bulletSize || 1, this.gunObj.maxDistScale || 1));
         this.playShotEffect();
     }
 
@@ -648,23 +648,41 @@ class Entity{
      * @param {-1 | 0 | 1} dir новое направление движения для ентити
      */
     _aiFollowPlayer(dist = 0, dir = 0){
-        if(dir !== 0)
-            this.setDirection(dir);
-        if(Math.pow(p.pos.x - this.pos.x, 2) + Math.pow(p.pos.y-this.pos.y, 2) <= AI_MAX_DIST*AI_MAX_DIST){
-            if((dist >= AI_MIN_DIST || dist === 0) && Math.abs(this.startPos.x - this.pos.x) < this.AI_WALK.time.mTime*this.speed*GLOBAS_SCALE*0.5){
-                this.isMove = !this.move(this.dir * 0.6);
-                if(!bottomCollisionWithMap(this).res && !this._aiFreeMove){
-                    this.move(this.dir * (-0.6));
-                    this.isMove = false;
-                }
+        const distToPlayer = Math.pow(p.pos.x - this.pos.x, 2) + Math.pow(p.pos.y-this.pos.y, 2);
+        if(this._aiFreeMove && this.followPlayer.state){
+            if(Math.abs(p.pos.x - this.pos.x) * 2 >= AI_MIN_DIST){
+                if(dir !== 0)
+                this.setDirection(dir);
             }
-            else 
+            if(distToPlayer >= AI_MIN_DIST*AI_MIN_DIST){
+                const isCollision = this.move(this.dir * 0.6);
+                this.isMove = true;
+                if(isCollision){
+                    this.jump();
+                    console.log('Прыг скок')
+                }
+            } else this.isMove = false;
+        }
+        else{
+            if(dir !== 0)
+                this.setDirection(dir);
+            if(distToPlayer <= AI_MAX_DIST*AI_MAX_DIST){
+                if((dist >= AI_MIN_DIST || dist === 0) && Math.abs(this.startPos.x - this.pos.x) < this.AI_WALK.time.mTime*this.speed*GLOBAS_SCALE*0.5){
+                    this.isMove = !this.move(this.dir * 0.6);
+                    const bottomCollision = bottomCollisionWithMap(this).res;
+                    if(!bottomCollision && !this._aiFreeMove){
+                        this.move(this.dir * (-0.6));
+                        this.isMove = false;
+                    }
+                }
+                else 
+                    this.isMove = false;
+            } else{
                 this.isMove = false;
-        } else{
-            this.isMove = false;
-            this.followPlayer.time--;
-            if(this.followPlayer.time === 0){
-                this.followPlayer.state = false;
+                this.followPlayer.time--;
+                if(this.followPlayer.time === 0){
+                    this.followPlayer.state = false;
+                }
             }
         }
         this._updateEnemyHand();

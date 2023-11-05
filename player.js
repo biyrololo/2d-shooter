@@ -78,10 +78,10 @@ function firstStart(){
         })
     }
     document.querySelector('#loading > a').textContent = `images/mapNew${isHdTextures?'':'Low'}.png`;
-    map.src = `images/mapNew${isHdTextures?'':'Low'}.png`;
+    map.src = `images/map${isHdTextures?'2x':'1x'}.png`;
     map.onload = () => {
         document.querySelector('#loading > div').style=`--s: 100%`;
-        MAP_DRAWN_WIDTH = map.width / 96 * DRAWN_SIZE/5 * 1.5 * 1.5 * (isHdTextures?1:4);
+        MAP_DRAWN_WIDTH = map.width / 96 * DRAWN_SIZE/5 * 1.5 * 1.5 * (isHdTextures?2:4);
         GAME_STATE = GAME_STATES.game;
         startGame();
         animate();
