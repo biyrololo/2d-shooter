@@ -17,17 +17,16 @@ class Blood{
         this.frameSize = 100;
         BLOOD_EFFECTS.push(this);
     }
-    draw(){
-        this._updateFrame();
-        c.drawImage(this.image, (this.frame.cur % this.width)*this.frameSize, Math.floor(this.frame.cur / this.width)*this.frameSize, this.frameSize, this.frameSize,
+    draw(deltaTime){
+        this._updateFrame(deltaTime*60);
+        c.drawImage(this.image, (Math.floor(this.frame.cur) % this.width)*this.frameSize, Math.floor(Math.floor(this.frame.cur) / this.width)*this.frameSize, this.frameSize, this.frameSize,
         this.pos.x - cameraPos.x - TILE_SIZE, this.pos.y - cameraPos.y - TILE_SIZE, TILE_SIZE*2, TILE_SIZE*2);
     }
 
-    _updateFrame(){
-        this.frame.cur++;
-        if(this.frame.cur === this.frame.max){
+    _updateFrame(deltaTime){
+        this.frame.cur+=deltaTime;
+        if(this.frame.cur >= this.frame.max){
             BLOOD_EFFECTS.splice(BLOOD_EFFECTS.indexOf(this), 1);
-
         }
     }
 }

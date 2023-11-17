@@ -179,6 +179,7 @@ class Entity{
             max: 10,
             value: 10
         }
+        this.deltaTime = 0;
     }
 
     /**
@@ -330,10 +331,10 @@ class Entity{
             c.filter = `hue-rotate(-${(PLAYER_BOOSTS.damage + PLAYER_BOOSTS.speed - 2)*30}deg)`;
         }
         if(this.dir === Directions.right){
-            c.drawImage(this.images[this.state], this.curFrame * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
+            c.drawImage(this.images[this.state], Math.floor(this.curFrame) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE/2- cameraPos.x, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
         else{
-            c.drawImage(this.imagesLeft[this.state], ((this.state === States.walk?5 : 3) - this.curFrame) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x + OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
+            c.drawImage(this.imagesLeft[this.state], ((this.state === States.walk?5 : 3) - Math.floor(this.curFrame)) * SPRITE_SIZE*this.spriteScale, 0, SPRITE_SIZE*this.spriteScale, SPRITE_SIZE*this.spriteScale, this.pos.x + DRAWN_SIZE*0/2- cameraPos.x + OFFSET.leftDir*DRAWN_SIZE/SPRITE_SIZE, this.pos.y- cameraPos.y, DRAWN_SIZE, DRAWN_SIZE);
         }
         if(this.shieldHitAnimFrams.isActive)
             c.filter = `brightness(${100+this.shieldHitAnimFrams.value/this.shieldHitAnimFrams.max*100}%)`;
@@ -345,10 +346,12 @@ class Entity{
     }
 
     /**
+     * @param {number} dt
      * Updates the entity (every frame)
      * Обновляет entity (каждый кадр)
      */
-    update(){
+    update(dt){
+        this.deltaTime = dt*60;
         if(this.isJump){
             this._doingJump();
         }
@@ -370,8 +373,9 @@ class Entity{
     }
 
     updateAnim(){
-        this.counter.cur++;
-        if(this.counter.cur % this.counter.fq === 0){
+        this.counter.cur+=this.deltaTime;
+        if(this.counter.cur >= this.counter.fq){
+            this.counter.cur = 0;
             if(this.shieldAnim.isActive){
                 this.shieldAnim.value++;
                 if(this.shieldAnim.value === this.shieldAnim.max) this.shieldAnim.value = 0;
@@ -386,7 +390,7 @@ class Entity{
             if(this.shotEffectFrame.curFrame > this.shotEffectFrame.max) this.shotEffectFrame.play = false;
             if(this.curFrame > 3) this.curFrame = 0;
         }
-        if(this.reload > 0) {this.reload--; if(this.reload < 0) this.reload = 0;}
+        if(this.reload > 0) {this.reload-=this.deltaTime; if(this.reload < 0) this.reload = 0;}
     }
 
     _updatePlayerStates(){
@@ -406,6 +410,7 @@ class Entity{
     move(x = 0){
         let scale = 1;
         if(this.team === 1) scale = PLAYER_BOOSTS.speed;
+        scale*=this.deltaTime;
         let res = false;
         this.pos.x+=x*this.speed*GLOBAS_SCALE*scale;
         if(entitiesCollision(this) || fullCollWithMap(this)){
@@ -450,11 +455,11 @@ class Entity{
         let bCres = bottomCollisionWithMap(this);
         this.isOnFloor = bCres.res;
         if(!this.isJump){
-            this.pos.y+=GRAVITY*this.weight;
+            this.pos.y+=GRAVITY*this.weight*this.deltaTime;
             bCres = bottomCollisionWithMap(this);
             if(entitiesCollision(this) || bCres.res){
                 this.isOnFloor = true;
-                if(!bCres.res) this.pos.y-=GRAVITY*this.weight;
+                if(!bCres.res) this.pos.y-=GRAVITY*this.weight*this.deltaTime;
                 else this.pos.y = bCres.y - DRAWN_SIZE; 
             }
         }
@@ -659,7 +664,7 @@ class Entity{
                 this.isMove = true;
                 if(isCollision){
                     this.jump();
-                    console.log('Прыг скок')
+                    // console.log('Прыг скок')
                 }
             } else this.isMove = false;
         }

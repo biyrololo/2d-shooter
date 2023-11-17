@@ -48,9 +48,15 @@ veryDistantBg.src = `images/veryDistantBg.png`;
 const backgroundFog = new Image();
 backgroundFog.src = `images/Frontal Fog.png`;
 
+let prevTime = -1;
+
 function animate(){
-    if(GAME_STATE === GAME_STATES.game) renderGame();
-    requestAnimationFrame(animate);
+  if(prevTime === -1) prevTime = performance.now() - 0.01;
+  const currentTime = performance.now();
+  const deltaTime = (currentTime - prevTime)/1000;
+  if(GAME_STATE === GAME_STATES.game) renderGame(deltaTime);
+  prevTime = currentTime;
+  requestAnimationFrame(animate);
 }
 
 /**
@@ -62,58 +68,58 @@ function isInScreen(pos = {x: 0, y: 0}){
   return Math.pow(pos.x - p.pos.x, 2) + Math.pow(pos.y - p.pos.y, 2) <= canvas.width*canvas.width
 }
 
-function renderGame(){
+function renderGame(deltaTime){
   c.fillStyle='gray';
-    c.fillRect(0, 0, canvas.width, canvas.height);
-    c.drawImage(background, 0, 0, background.width, background.height, 0, 0, canvas.width, canvas.height);
-    c.drawImage(veryDistantBg, 0, 0, veryDistantBg.width, veryDistantBg.height, -cameraPos.x/20,-cameraPos.y/20-canvas.height/3, MAP_DRAWN_WIDTH/3, veryDistantBg.height / veryDistantBg.width * MAP_DRAWN_WIDTH/3)
-    c.drawImage(distantBg, 0, 0, distantBg.width, distantBg.height, -cameraPos.x/4,-cameraPos.y/4, MAP_DRAWN_WIDTH, distantBg.height / distantBg.width * MAP_DRAWN_WIDTH)
-    c.drawImage(backgroundFog, 0, 0, backgroundFog.width, backgroundFog.height, 0, canvas.height*0.7, canvas.width, canvas.height*0.3);
-    updateCameraPos();
-    c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y - 48 * TILE_SIZE, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
-    CHECKPOINTS_BLOCKS.forEach(checkpoint=>{
-      if(isInScreen(checkpoint.pos))
-        checkpoint.update();
-    })
-    drops.forEach(d=>{
-    if(isInScreen(d.pos))
-        d.update();
-    })
-    // c.fillStyle = 'green';
-    // c.fillRect(canvas.width*0.35, canvas.height*0.3, canvas.width*0.3, canvas.height*0.5)
-    if(isMobile) updatePlayerDirMobile();
-    else updatePlayerDir();
-    updateBullets();
-    // let box = p.getBox();
-    // c.fillStyle = 'green';
-    // c.fillRect(box.x - cameraPos.x ,box.y - cameraPos.y, box.x2-box.x, box.y2 - box.y);
-    collisionEntities.forEach(e=>{if(isInScreen(e.pos)) 
-      {
-        e.update();
-      }
-    })
-    BLOOD_EFFECTS.forEach(e=>e.draw())
-    if(isMobile) drawMobileControl();
-    else drawCrosshair();
-    ckeckIsPlayerDie();
-    // let translatePos = {
-    //     x: p.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE,
-    //     y: p.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*p.gunObj.offset,
-    // };
-    // let handPos = {x: translatePos.x - (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(p.handleAngle), y: translatePos.y + (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(p.handleAngle)};
-    // c.fillStyle = 'green';
-    // c.fillRect(handPos.x - cameraPos.x - 5, handPos.y - cameraPos.y - 5, 10, 10)
-    // c.fillStyle = 'green';
-    // c.fillRect(-cameraPos.x + p.pos.x + DRAWN_SIZE*3/4, -cameraPos.y + p.pos.y, 10, 200)
-    // if(p.compateDirection('left')){
-    //     let handPos = {x: p.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*3*Math.sin(Math.PI+p.handleAngle), y: p.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*3*Math.cos(p.handleAngle)};
-    //     c.fillRect(handPos.x - 5 - cameraPos.x,handPos.y - cameraPos.y - 5, 10, 10)
-    // }
-    // c.fillStyle = 'red'
-    // COLLISION_BLOCKS.forEach(block=>{
-    //     c.fillRect(block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - cameraPos.y, 1*TILE_SIZE, 1*TILE_SIZE);
-    // })
-    // entitiesCollision(p);
+  c.fillRect(0, 0, canvas.width, canvas.height);
+  c.drawImage(background, 0, 0, background.width, background.height, 0, 0, canvas.width, canvas.height);
+  c.drawImage(veryDistantBg, 0, 0, veryDistantBg.width, veryDistantBg.height, -cameraPos.x/20,-cameraPos.y/20-canvas.height/3, MAP_DRAWN_WIDTH/3, veryDistantBg.height / veryDistantBg.width * MAP_DRAWN_WIDTH/3)
+  c.drawImage(distantBg, 0, 0, distantBg.width, distantBg.height, -cameraPos.x/4,-cameraPos.y/4, MAP_DRAWN_WIDTH, distantBg.height / distantBg.width * MAP_DRAWN_WIDTH)
+  c.drawImage(backgroundFog, 0, 0, backgroundFog.width, backgroundFog.height, 0, canvas.height*0.7, canvas.width, canvas.height*0.3);
+  updateCameraPos();
+  c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y - 48 * TILE_SIZE, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
+  CHECKPOINTS_BLOCKS.forEach(checkpoint=>{
+    if(isInScreen(checkpoint.pos))
+      checkpoint.update();
+  })
+  drops.forEach(d=>{
+  if(isInScreen(d.pos))
+      d.update();
+  })
+  // c.fillStyle = 'green';
+  // c.fillRect(canvas.width*0.35, canvas.height*0.3, canvas.width*0.3, canvas.height*0.5)
+  if(isMobile) updatePlayerDirMobile();
+  else updatePlayerDir();
+  updateBullets(deltaTime);
+  // let box = p.getBox();
+  // c.fillStyle = 'green';
+  // c.fillRect(box.x - cameraPos.x ,box.y - cameraPos.y, box.x2-box.x, box.y2 - box.y);
+  collisionEntities.forEach(e=>{if(isInScreen(e.pos)) 
+    {
+      e.update(deltaTime);
+    }
+  })
+  BLOOD_EFFECTS.forEach(e=>e.draw(deltaTime))
+  if(isMobile) drawMobileControl();
+  else drawCrosshair();
+  ckeckIsPlayerDie();
+  // let translatePos = {
+  //     x: p.pos.x + (SPRITE_SIZE-18)*DRAWN_SIZE/SPRITE_SIZE,
+  //     y: p.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*p.gunObj.offset,
+  // };
+  // let handPos = {x: translatePos.x - (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.sin(p.handleAngle), y: translatePos.y + (p.hand.height / p.hand.width * HAND_SIZE+p.gun.height / p.gun.width * HAND_SIZE - HAND_SIZE)*Math.cos(p.handleAngle)};
+  // c.fillStyle = 'green';
+  // c.fillRect(handPos.x - cameraPos.x - 5, handPos.y - cameraPos.y - 5, 10, 10)
+  // c.fillStyle = 'green';
+  // c.fillRect(-cameraPos.x + p.pos.x + DRAWN_SIZE*3/4, -cameraPos.y + p.pos.y, 10, 200)
+  // if(p.compateDirection('left')){
+  //     let handPos = {x: p.pos.x + (SPRITE_SIZE-36)*DRAWN_SIZE/SPRITE_SIZE + 18*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*3*Math.sin(Math.PI+p.handleAngle), y: p.pos.y + 24*DRAWN_SIZE/SPRITE_SIZE + HAND_SIZE*3*Math.cos(p.handleAngle)};
+  //     c.fillRect(handPos.x - 5 - cameraPos.x,handPos.y - cameraPos.y - 5, 10, 10)
+  // }
+  // c.fillStyle = 'red'
+  // COLLISION_BLOCKS.forEach(block=>{
+  //     c.fillRect(block.x*TILE_SIZE - cameraPos.x, block.y*TILE_SIZE - cameraPos.y, 1*TILE_SIZE, 1*TILE_SIZE);
+  // })
+  // entitiesCollision(p);
 }
 
 // animate();
