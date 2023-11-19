@@ -1,6 +1,13 @@
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 document.querySelector('button').onclick=firstStart;
+var isPause = false;
+window.addEventListener('blur', () => {
+  isPause = true;
+})
+window.addEventListener('focus', () => {
+  isPause = false;
+})
 
 const setHdButton = document.querySelector('#set-hd');
 
@@ -48,13 +55,17 @@ veryDistantBg.src = `images/veryDistantBg.png`;
 const backgroundFog = new Image();
 backgroundFog.src = `images/Frontal Fog.png`;
 
+const sunImg = new Image();
+sunImg.src = `images/sun.png`;
+
 let prevTime = -1;
 
 function animate(){
-  if(prevTime === -1) prevTime = performance.now() - 0.01;
+  if(prevTime === -1) {prevTime = performance.now() - 0.01; isPause = true}
+  else isPause = false;
   const currentTime = performance.now();
   const deltaTime = (currentTime - prevTime)/1000;
-  if(GAME_STATE === GAME_STATES.game) renderGame(deltaTime);
+  if(GAME_STATE === GAME_STATES.game && !isPause) renderGame(deltaTime);
   prevTime = currentTime;
   requestAnimationFrame(animate);
 }
@@ -72,11 +83,13 @@ function renderGame(deltaTime){
   c.fillStyle='gray';
   c.fillRect(0, 0, canvas.width, canvas.height);
   c.drawImage(background, 0, 0, background.width, background.height, 0, 0, canvas.width, canvas.height);
-  c.drawImage(veryDistantBg, 0, 0, veryDistantBg.width, veryDistantBg.height, -cameraPos.x/20,-cameraPos.y/20-canvas.height/3, MAP_DRAWN_WIDTH/3, veryDistantBg.height / veryDistantBg.width * MAP_DRAWN_WIDTH/3)
+  c.drawImage(veryDistantBg, 0, 0, veryDistantBg.width, veryDistantBg.height, -cameraPos.x/20,-cameraPos.y/20-canvas.height/3, MAP_DRAWN_WIDTH/3, veryDistantBg.height / veryDistantBg.width * MAP_DRAWN_WIDTH/3);
+  c.drawImage(sunImg, 0, 0, sunImg.width, sunImg.height, cameraPos.x/15 + MAP_DRAWN_WIDTH/2 - cameraPos.x, cameraPos.y/15 - cameraPos.y, MAP_DRAWN_WIDTH/30, sunImg.height / sunImg.width * MAP_DRAWN_WIDTH/30);
   c.drawImage(distantBg, 0, 0, distantBg.width, distantBg.height, -cameraPos.x/4,-cameraPos.y/4, MAP_DRAWN_WIDTH, distantBg.height / distantBg.width * MAP_DRAWN_WIDTH)
   c.drawImage(backgroundFog, 0, 0, backgroundFog.width, backgroundFog.height, 0, canvas.height*0.7, canvas.width, canvas.height*0.3);
   updateCameraPos();
   c.drawImage(map, 0, 0, map.width, map.height, -cameraPos.x, -cameraPos.y - 48 * TILE_SIZE, MAP_DRAWN_WIDTH, map.height / map.width * MAP_DRAWN_WIDTH);
+
   CHECKPOINTS_BLOCKS.forEach(checkpoint=>{
     if(isInScreen(checkpoint.pos))
       checkpoint.update();
