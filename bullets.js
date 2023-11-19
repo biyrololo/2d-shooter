@@ -58,10 +58,11 @@ function distBetween2Points(point1, point2){
 }
 
 /**
+ * @param {number} deltaTime delta time
  * Handles bullet logic
  * Обрабатывает логику пуль
  */
-function updateBullets(){
+function updateBullets(deltaTime){
     bullets.forEach(
         /**
          * 
@@ -69,8 +70,8 @@ function updateBullets(){
          * @param {number} i index
          */
         (b, i)=>{
-        b.pos.x+=b.linearSpeed.x;
-        b.pos.y+=b.linearSpeed.y;
+        b.pos.x+=b.linearSpeed.x*deltaTime*60;
+        b.pos.y+=b.linearSpeed.y*deltaTime*60;
         b.dist+=b.basicSpeed;
         let collision = pointCollision(b);
         if(b.dist >= MAX_DIST*b.maxDistScale || collision){

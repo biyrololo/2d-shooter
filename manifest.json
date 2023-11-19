@@ -1,0 +1,16 @@
+{
+    "name": "Pixel Pursuit",
+    "description": "Pixel Pursuit is a 2D cyberpunk shooter. Play now!",
+    "version": "2.3.0",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#6B006B",
+    "theme_color": "#400040",
+    "icons": [
+      {
+        "src": "logo.png",
+        "sizes": "128x128",
+        "type": "image/png"
+      }
+    ]
+  }

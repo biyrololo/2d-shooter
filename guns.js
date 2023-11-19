@@ -184,7 +184,7 @@ function getGun(gun){
 
 /**
  * 
- * @returns {'1' | '2'}
+ * @returns {'1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10'}
  */
 function getRandomGun(){
     return Object.keys(GUNS)[Math.floor(Math.random() * Object.keys(GUNS).length)]
